@@ -1,1 +1,2 @@
 here is a summary of gpt5.1 ability
+comparison of gpt,gemini and claude code
