@@ -1,4 +1,5 @@
 [Subway Dash 2D] PRD
+version 2
 一、專案概述
 專案名稱： Subway Dash 2D
 
