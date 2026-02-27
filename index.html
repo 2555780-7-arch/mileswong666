@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUBWAY DASH - 首頁</title>
+    <style>
+        /* CSS Variables for Theme Switching */
+        :root {
+            --bg-color: #1a1a2e;
+            --text-color: #ffffff;
+            --primary-color: #00d2ff;
+            --secondary-color: #ff0055;
+            --accent-color: #ffcc00;
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f0f2f5;
+            --text-color: #333333;
+            --primary-color: #0099cc;
+            --secondary-color: #cc0044;
+            --accent-color: #e6b800;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .game-title {
+            font-family: 'Arial Black', sans-serif;
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            text-shadow: 3px 3px 0 var(--secondary-color);
+            letter-spacing: 2px;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        .theme-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 2px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+
+        .game-description {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        /* Play Button */
+        .play-button {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 20px 50px;
+            border-radius: 50px;
+            text-decoration: none;
+            margin: 30px 0;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .play-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .play-button:active {
+            transform: translateY(0);
+        }
+
+        /* Instructions */
+        .instructions {
+            text-align: left;
+            max-width: 600px;
+            margin: 0 auto 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .instructions h3 {
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .instructions ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .instructions li:before {
+            content: "•";
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            position: absolute;
+            left: 0;
+            top: -5px;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .control-item {
+            background: var(--card-bg);
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            min-width: 150px;
+        }
+
+        .key {
+            display: inline-block;
+            background: var(--accent-color);
+            color: #000;
+            font-weight: bold;
+            padding: 5px 15px;
+            border-radius: 5px;
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            opacity: 0.7;
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .play-button {
+                font-size: 1.2rem;
+                padding: 15px 30px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-title {
+                font-size: 1.5rem;
+            }
+            
+            .theme-toggle {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="game-title">SUBWAY DASH</h1>
+            <button class="theme-toggle" id="themeToggle">
+                <span class="theme-icon">🌙</span>
+                <span class="theme-text">暗黑模式</span>
+            </button>
+        </header>
+
+        <main class="main-content">
+            <p class="game-description">
+                在充滿塗鴉的地下鐵世界裡奔跑、跳躍、翻滾！躲避障礙物，收集金幣，創造最高分！
+            </p>
+
+            <a href="yummysnake.html" class="play-button">開始遊戲</a>
+
+            <div class="instructions">
+                <h3>遊戲說明</h3>
+                <ul>
+                    <li>控制角色在地下鐵軌道上奔跑</li>
+                    <li>跳過低障礙物，翻滾穿過高障礙物</li>
+                    <li>收集金幣獲得高分</li>
+                    <li>遊戲速度會逐漸加快，挑戰你的反應力</li>
+                    <li>觸碰障礙物遊戲結束</li>
+                </ul>
+            </div>
+
+            <div class="controls">
+                <div class="control-item">
+                    <span class="key">↑</span> 或 <span class="key">空格鍵</span>
+                    <div>跳躍</div>
+                </div>
+                <div class="control-item">
+                    <span class="key">↓</span> 或 <span class="key">S</span>
+                    <div>翻滾</div>
+                </div>
+                <div class="control-item">
+                    <span class="key">點擊/滑動</span>
+                    <div>觸控操作</div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>SUBWAY DASH 2D 遊戲 | 使用 ↑ ↓ 鍵或觸控操作 | 最佳體驗使用 Chrome 瀏覽器</p>
+            <p>© 2023 地下鐵疾跑遊戲 | 版本 1.0</p>
+        </footer>
+    </div>
+
+    <script>
+        // Theme Toggle Functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('.theme-icon');
+        const themeText = themeToggle.querySelector('.theme-text');
+        
+        // Check for saved theme or prefer-color-scheme
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        const savedTheme = localStorage.getItem('theme');
+        
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            
+            // Update button text and icon
+            if (theme === 'light') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = '明亮模式';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = '暗黑模式';
+            }
+        }
+        
+        // Initialize theme
+        if (savedTheme) {
+            setTheme(savedTheme);
+        } else if (prefersDarkScheme.matches) {
+            setTheme('dark');
+        } else {
+            setTheme('light');
+        }
+        
+        // Toggle theme on button click
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            setTheme(newTheme);
+        });
+        
+        // Listen for system theme changes
+        prefersDarkScheme.addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) {
+                setTheme(e.matches ? 'dark' : 'light');
+            }
+        });
+        
+        // Add some interactive feedback for the play button
+        document.querySelector('.play-button').addEventListener('mouseenter', function() {
+            this.style.background = `linear-gradient(135deg, ${getComputedStyle(document.documentElement).getPropertyValue('--secondary-color')}, ${getComputedStyle(document.documentElement).getPropertyValue('--primary-color')})`;
+        });
+        
+        document.querySelector('.play-button').addEventListener('mouseleave', function() {
+            this.style.background = `linear-gradient(135deg, ${getComputedStyle(document.documentElement).getPropertyValue('--primary-color')}, ${getComputedStyle(document.documentElement).getPropertyValue('--secondary-color')})`;
+        });
+    </script>
+</body>
+</html>
