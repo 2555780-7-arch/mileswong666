@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>計畫清單 - UniNav 升學導航</title>
+    <style>
+        /* =========================================
+           色彩變量與全域設定
+           ========================================= */
+        :root {
+            --bg-color: #F8FAFC;
+            --text-main: #0F172A;
+            --text-muted: #475569;
+            --primary-color: #3B82F6;
+            --primary-hover: #1D4ED8;
+            --card-bg: #FFFFFF;
+            --card-shadow: rgba(0, 0, 0, 0.05);
+            --nav-bg: rgba(248, 250, 252, 0.9);
+            --border-color: #E2E8F0;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --task-bg: #F1F5F9;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0F172A;
+            --text-main: #F8FAFC;
+            --text-muted: #CBD5E1;
+            --primary-color: #3B82F6;
+            --primary-hover: #60A5FA;
+            --card-bg: #1E293B;
+            --card-shadow: rgba(0, 0, 0, 0.2);
+            --nav-bg: rgba(15, 23, 42, 0.9);
+            --border-color: #334155;
+            --success-color: #34D399;
+            --warning-color: #FBBF24;
+            --task-bg: #0F172A;
+        }
+
+        html { scroll-behavior: smooth; }
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; overflow-x: hidden; }
+        a { text-decoration: none; color: inherit; }
+
+        /* =========================================
+           導航欄
+           ========================================= */
+        nav { position: fixed; top: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 5%; background-color: var(--nav-bg); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, var(--primary-color), var(--primary-hover)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-links { display: flex; align-items: center; gap: 1rem; font-weight: 500; }
+        .theme-toggle, .lang-toggle { background: var(--card-bg); border: none; cursor: pointer; color: var(--text-main); display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; box-shadow: 0 2px 5px var(--card-shadow); }
+        .theme-toggle { font-size: 1.2rem; }
+        .lang-toggle { font-size: 1rem; font-weight: bold; }
+
+        /* =========================================
+           主要內容區域
+           ========================================= */
+        main { padding: 100px 5% 5rem; max-width: 1400px; margin: 0 auto; }
+        
+        .page-header { text-align: center; margin-bottom: 3rem; }
+        .page-header h1 { font-size: 2.5rem; margin-bottom: 1rem; color: var(--text-main); }
+        .page-header p { color: var(--text-muted); font-size: 1.1rem; }
+
+        .dashboard-grid { display: grid; grid-template-columns: 320px 1fr; gap: 2rem; }
+
+        /* 左側：多維度能力分析儀 */
+        .summary-card { background-color: var(--card-bg); padding: 2rem; border-radius: 16px; box-shadow: 0 10px 30px var(--card-shadow); border: 1px solid var(--border-color); height: fit-content; position: sticky; top: 90px; }
+        .summary-card h3 { margin-bottom: 1.5rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; }
+        
+        /* 評級區塊 */
+        .tier-box { text-align: center; margin-bottom: 2rem; padding: 1.5rem; background: var(--task-bg); border-radius: 12px; border: 1px solid var(--border-color); }
+        .tier-badge { font-size: 4rem; font-weight: 900; line-height: 1; margin-bottom: 0.5rem; text-shadow: 0px 4px 10px var(--card-shadow); transition: all 0.5s ease; }
+        
+        /* 動態評級顏色 */
+        .tier-s { background: linear-gradient(135deg, #F59E0B, #EF4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; } /* 金紅 S級 */
+        .tier-a { background: linear-gradient(135deg, #10B981, #059669); -webkit-background-clip: text; -webkit-text-fill-color: transparent; } /* 綠色 A級 */
+        .tier-b { background: linear-gradient(135deg, #3B82F6, #2563EB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; } /* 藍色 B級 */
+        .tier-c { background: linear-gradient(135deg, #94A3B8, #64748B); -webkit-background-clip: text; -webkit-text-fill-color: transparent; } /* 灰色 C級 */
+        
+        .tier-text { font-size: 0.95rem; color: var(--text-muted); font-weight: 600; }
+
+        /* 分項進度條 */
+        .skills-container { display: flex; flex-direction: column; gap: 1.5rem; }
+        .skill-item { width: 100%; }
+        .skill-header { display: flex; justify-content: space-between; font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-main); }
+        .progress-bar-bg { width: 100%; height: 10px; background: var(--border-color); border-radius: 10px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; width: 0%; border-radius: 10px; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* 各科目的獨立漸變色 */
+        .fill-academic { background: linear-gradient(90deg, #3B82F6, #60A5FA); }
+        .fill-stem { background: linear-gradient(90deg, #10B981, #34D399); }
+        .fill-humanities { background: linear-gradient(90deg, #8B5CF6, #A78BFA); }
+
+        .radar-tip { margin-top: 2rem; font-size: 0.85rem; color: var(--text-muted); background: var(--bg-color); padding: 1rem; border-radius: 8px; border-left: 3px solid var(--primary-color); line-height: 1.5; }
+
+        /* 右側：Check-list 計畫表 */
+        .checklist-section { background-color: var(--card-bg); padding: 2.5rem; border-radius: 16px; box-shadow: 0 10px 30px var(--card-shadow); border: 1px solid var(--border-color); }
+        .checklist-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 2px solid var(--border-color); padding-bottom: 1rem; }
+        .checklist-header h2 { font-size: 1.8rem; margin: 0; }
+        .reset-btn { background: none; border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 6px; color: var(--text-muted); cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+        .reset-btn:hover { background: var(--border-color); color: var(--text-main); }
+
+        .category-title { font-size: 1.3rem; color: var(--primary-color); margin: 2.5rem 0 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .category-title:first-of-type { margin-top: 0; }
+        
+        /* 任務項目樣式 (雙排網格) */
+        .task-list { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .task-item { display: flex; align-items: flex-start; gap: 12px; padding: 1.2rem; background: var(--task-bg); border: 1px solid var(--border-color); border-radius: 10px; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .task-item:hover { border-color: var(--primary-color); transform: translateY(-2px); box-shadow: 0 4px 10px var(--card-shadow); }
+        
+        /* 隱藏原生 Checkbox，自訂外觀 */
+        .task-item input[type="checkbox"] { display: none; }
+        .custom-checkbox { width: 22px; height: 22px; border: 2px solid var(--border-color); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s; background: var(--card-bg); margin-top: 2px; }
+        .custom-checkbox::after { content: '✓'; color: white; font-size: 14px; font-weight: bold; opacity: 0; transform: scale(0); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        .task-content { display: flex; flex-direction: column; }
+        .task-title { font-size: 1rem; font-weight: 600; color: var(--text-main); transition: color 0.3s; }
+        .task-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; line-height: 1.4; }
+        
+        /* 完成狀態的樣式 */
+        .task-item input[type="checkbox"]:checked + .custom-checkbox { background-color: var(--success-color); border-color: var(--success-color); }
+        .task-item input[type="checkbox"]:checked + .custom-checkbox::after { opacity: 1; transform: scale(1); }
+        .task-item.completed { border-left: 4px solid var(--success-color); opacity: 0.7; }
+        .task-item.completed .task-title { text-decoration: line-through; color: var(--text-muted); }
+
+        footer { text-align: center; padding: 2rem 5%; background-color: var(--bg-color); border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem; margin-top: 3rem; }
+
+        @media (max-width: 1024px) {
+            .task-list { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .summary-card { position: static; }
+            .checklist-section { padding: 1.5rem; }
+            .checklist-header { flex-direction: column; gap: 1rem; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo lang-switch" data-zh="UniNav 升學導航" data-en="UniNav Navigator">UniNav 升學導航</div>
+        <div class="nav-links">
+            <button class="lang-toggle" id="lang-toggle" aria-label="切換語言">EN</button>
+            <button class="theme-toggle" id="theme-toggle" aria-label="切換深淺色模式">🌙</button>
+        </div>
+    </nav>
+
+    <main>
+        <div class="page-header">
+            <h1 class="lang-switch" data-zh="全球名校衝刺里程碑" data-en="Global Top-Tier Milestones">全球名校衝刺里程碑</h1>
+            <p class="lang-switch" data-zh="涵蓋 GPA、標化考試及 30+ 頂級科研與文理競賽，量化你的每一步努力。" data-en="Covering GPA, standardized tests, and 30+ top STEM/Humanities competitions. Quantify your every step.">涵蓋 GPA、標化考試及 30+ 頂級科研與文理競賽，量化你的每一步努力。</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <aside class="summary-card">
+                <h3 class="lang-switch" data-zh="📊 多維能力分析" data-en="📊 Holistic Profile">📊 多維能力分析</h3>
+                
+                <div class="tier-box">
+                    <div class="tier-badge tier-c" id="tier-badge">C</div>
+                    <div class="tier-text lang-switch" data-zh="綜合競爭力評級" data-en="Overall Competitiveness Tier">綜合競爭力評級</div>
+                </div>
+                
+                <div class="skills-container">
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="lang-switch" data-zh="📚 學術與標化" data-en="📚 Academics & Tests">📚 學術與標化</span>
+                            <span id="score-academic">0%</span>
+                        </div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill fill-academic" id="bar-academic"></div></div>
+                    </div>
+                    
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="lang-switch" data-zh="🔬 理科研發" data-en="🔬 STEM & Research">🔬 理科研發</span>
+                            <span id="score-stem">0%</span>
+                        </div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill fill-stem" id="bar-stem"></div></div>
+                    </div>
+                    
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="lang-switch" data-zh="🏛️ 人文商科" data-en="🏛️ Humanities & Biz">🏛️ 人文商科</span>
+                            <span id="score-humanities">0%</span>
+                        </div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill fill-humanities" id="bar-humanities"></div></div>
+                    </div>
+                </div>
+
+                <div class="radar-tip lang-switch" data-zh="💡 建議：無須完成全部項目。學術達標後，挑選 3-5 項高含金量活動即可晉升 A 級以上。" data-en="💡 Tip: You don't need to finish all. Achieve academics and pick 3-5 top activities to reach Tier A or above.">💡 建議：無須完成全部項目。學術達標後，挑選 3-5 項高含金量活動即可晉升 A 級以上。</div>
+            </aside>
+
+            <section class="checklist-section">
+                <div class="checklist-header">
+                    <h2 class="lang-switch" data-zh="✅ 專屬備戰清單庫" data-en="✅ Exclusive Prep Checklist">✅ 專屬備戰清單庫</h2>
+                    <button class="reset-btn lang-switch" id="reset-btn" data-zh="重置進度" data-en="Reset Progress">重置進度</button>
+                </div>
+
+                <div class="category-title lang-switch" data-zh="📚 學術與標化成績 (Academics & Tests)" data-en="📚 Academics & Standardized Tests">📚 學術與標化成績 (Academics & Tests)</div>
+                <div class="task-list">
+                    <label class="task-item" for="task-1">
+                        <input type="checkbox" id="task-1" class="task-checkbox" data-category="academic">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="校內成績：保持高 GPA (目標 3.8+)" data-en="School GPA: Maintain High GPA (Target 3.8+)">校內成績：保持高 GPA (目標 3.8+)</span>
+                            <span class="task-desc lang-switch" data-zh="確保校內排名於年級前 5% 內。" data-en="Ensure top 5% ranking in school.">確保校內排名於年級前 5% 內。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-2">
+                        <input type="checkbox" id="task-2" class="task-checkbox" data-category="academic">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="英國體系：備考 IAL 大考 (目標 A*A*A)" data-en="UK System: Prep for IAL Exams (Target A*A*A)">英國體系：備考 IAL 大考 (目標 A*A*A)</span>
+                            <span class="task-desc lang-switch" data-zh="確保 Math, Physics 等核心科目滿分或 A*。" data-en="Ensure A* or full marks in core subjects like Math and Physics.">確保 Math, Physics 等核心科目滿分或 A*。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-3">
+                        <input type="checkbox" id="task-3" class="task-checkbox" data-category="academic">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="香港體系：備戰 HKDSE (目標 Best 5 28分+)" data-en="HK System: Prep for HKDSE (Target Best 5 28+)">香港體系：備戰 HKDSE (目標 Best 5 28分+)</span>
+                            <span class="task-desc lang-switch" data-zh="核心科穩摘星，選修科達 5 或 5* 以上。" data-en="Secure stars in core subjects, reach 5 or 5* in electives.">核心科穩摘星，選修科達 5 或 5* 以上。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-4">
+                        <input type="checkbox" id="task-4" class="task-checkbox" data-category="academic">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="美國體系：衝刺 SAT (目標 1500+)" data-en="US System: Push SAT Score (Target 1500+)">美國體系：衝刺 SAT (目標 1500+)</span>
+                            <span class="task-desc lang-switch" data-zh="數學確保 800 滿分，閱讀語法突破 700。" data-en="Ensure 800 in Math, break 700 in Evidence-Based Reading & Writing.">數學確保 800 滿分，閱讀語法突破 700。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-5">
+                        <input type="checkbox" id="task-5" class="task-checkbox" data-category="academic">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="語言測驗：雅思 IELTS 衝刺 (目標 7.5)" data-en="Language: Push IELTS Score (Target 7.5)">語言測驗：雅思 IELTS 衝刺 (目標 7.5)</span>
+                            <span class="task-desc lang-switch" data-zh="單項不低於 7.0，滿足牛劍或美本 Top 20 門檻。" data-en="No sub-score below 7.0 to meet Oxbridge or Top 20 US requirements.">單項不低於 7.0，滿足牛劍或美本 Top 20 門檻。</span>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="category-title lang-switch" data-zh="🔬 理科科研與競賽 (STEM Competitions)" data-en="🔬 STEM Research & Competitions">🔬 理科科研與競賽 (STEM Competitions)</div>
+                <div class="task-list">
+                    <label class="task-item" for="task-6">
+                        <input type="checkbox" id="task-6" class="task-checkbox" data-category="stem">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="IMMC 國際數學建模挑戰賽" data-en="IMMC: Math Modeling Challenge">IMMC 國際數學建模挑戰賽</span>
+                            <span class="task-desc lang-switch" data-zh="大中華區賽事，強化數學建模與論文寫作能力。" data-en="Greater China contest, enhancing math modeling and paper writing skills.">大中華區賽事，強化數學建模與論文寫作能力。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-7">
+                        <input type="checkbox" id="task-7" class="task-checkbox" data-category="stem">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="丘成桐中學科學獎 (Yau Contest)" data-en="Yau Science Awards">丘成桐中學科學獎 (Yau Contest)</span>
+                            <span class="task-desc lang-switch" data-zh="最高級別華人中學生學術獎，需提交完整研究論文。" data-en="Top academic award for high school students, requires full research paper.">最高級別華人中學生學術獎，需提交完整研究論文。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-8">
+                        <input type="checkbox" id="task-8" class="task-checkbox" data-category="stem">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="PAI26 國際人工智慧會議發表" data-en="PAI26 AI Conference Publication">PAI26 國際人工智慧會議發表</span>
+                            <span class="task-desc lang-switch" data-zh="完成高端 AI 論文（如分子動力學模擬等）。" data-en="Publish high-end AI paper (e.g., MD simulation).">完成高端 AI 論文（如分子動力學模擬等）。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-9">
+                        <input type="checkbox" id="task-9" class="task-checkbox" data-category="stem">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="獨立專案：澳門交通流量 AI 優化" data-en="Project: Macau Traffic AI Optimization">獨立專案：澳門交通流量 AI 優化</span>
+                            <span class="task-desc lang-switch" data-zh="結合北斗高精度定位的實用型科技競賽專案。" data-en="Practical tech project combining BeiDou positioning and AI.">結合北斗高精度定位的實用型科技競賽專案。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-10">
+                        <input type="checkbox" id="task-10" class="task-checkbox" data-category="stem">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="HiMCM 高中生數學建模競賽" data-en="HiMCM: High School Math Modeling">HiMCM 高中生數學建模競賽</span>
+                            <span class="task-desc lang-switch" data-zh="美國主辦，衝刺 O獎 或 F獎 提升美本申請率。" data-en="US hosted, aim for Outstanding or Finalist for US college apps.">美國主辦，衝刺 O獎 或 F獎 提升美本申請率。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-11">
+                        <input type="checkbox" id="task-11" class="task-checkbox" data-category="stem">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="AMC 12 / AIME 美國數學競賽" data-en="AMC 12 / AIME Math Competition">AMC 12 / AIME 美國數學競賽</span>
+                            <span class="task-desc lang-switch" data-zh="晉級 AIME 甚至 USAMO，展現極致數學天賦。" data-en="Qualify for AIME/USAMO to demonstrate extreme math talent.">晉級 AIME 甚至 USAMO，展現極致數學天賦。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-12">
+                        <input type="checkbox" id="task-12" class="task-checkbox" data-category="stem">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="BPhO 英國物理奧林匹克" data-en="BPhO: British Physics Olympiad">BPhO 英國物理奧林匹克</span>
+                            <span class="task-desc lang-switch" data-zh="申請牛劍或帝國理工物理系最強加分項。" data-en="Strongest bonus for physics apps to Oxbridge/Imperial.">申請牛劍或帝國理工物理系最強加分項。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-13">
+                        <input type="checkbox" id="task-13" class="task-checkbox" data-category="stem">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="PhysicsBowl 美國物理碗" data-en="PhysicsBowl Competition">PhysicsBowl 美國物理碗</span>
+                            <span class="task-desc lang-switch" data-zh="衝刺全球前 100，證明高中物理實力。" data-en="Aim for Global Top 100 to prove high school physics proficiency.">衝刺全球前 100，證明高中物理實力。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-14">
+                        <input type="checkbox" id="task-14" class="task-checkbox" data-category="stem">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="USACO 美國電腦奧林匹克" data-en="USACO: Computing Olympiad">USACO 美國電腦奧林匹克</span>
+                            <span class="task-desc lang-switch" data-zh="從銅級打到白金級，申請 CS 專業的硬核敲門磚。" data-en="Reach Platinum division; the ultimate CS major stepping stone.">從銅級打到白金級，申請 CS 專業的硬核敲門磚。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-15">
+                        <input type="checkbox" id="task-15" class="task-checkbox" data-category="stem">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="UKChO / USNCO 化學競賽" data-en="UKChO / USNCO Chemistry Olympiad">UKChO / USNCO 化學競賽</span>
+                            <span class="task-desc lang-switch" data-zh="英國/美國頂級化學賽事，生化醫學類必備。" data-en="Top UK/US chemistry contests, essential for Pre-Med/Bio.">英國/美國頂級化學賽事，生化醫學類必備。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-16">
+                        <input type="checkbox" id="task-16" class="task-checkbox" data-category="stem">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="BBO / USABO 生物奧林匹克" data-en="BBO / USABO Biology Olympiad">BBO / USABO 生物奧林匹克</span>
+                            <span class="task-desc lang-switch" data-zh="展示對生命科學的深度熱愛與知識廣度。" data-en="Demonstrate deep passion and knowledge in life sciences.">展示對生命科學的深度熱愛與知識廣度。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-17">
+                        <input type="checkbox" id="task-17" class="task-checkbox" data-category="stem">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="iGEM 國際遺傳工程機器競賽" data-en="iGEM Synthetic Biology Competition">iGEM 國際遺傳工程機器競賽</span>
+                            <span class="task-desc lang-switch" data-zh="麻省理工創辦，合成生物學領域最高學術賽。" data-en="MIT-founded, the highest academic contest in synthetic biology.">麻省理工創辦，合成生物學領域最高學術賽。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-18">
+                        <input type="checkbox" id="task-18" class="task-checkbox" data-category="stem">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="VEX 機器人世界錦標賽" data-en="VEX Robotics World Championship">VEX 機器人世界錦標賽</span>
+                            <span class="task-desc lang-switch" data-zh="展示硬體工程、程式設計與團隊協作能力。" data-en="Showcase hardware engineering, coding, and teamwork skills.">展示硬體工程、程式設計與團隊協作能力。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-19">
+                        <input type="checkbox" id="task-19" class="task-checkbox" data-category="stem">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="ISEF 國際科學與工程大獎賽" data-en="Regeneron ISEF">ISEF 國際科學與工程大獎賽</span>
+                            <span class="task-desc lang-switch" data-zh="全球最大規模中學生科學展，常春藤直通車。" data-en="World's largest pre-college science fair, a fast track to Ivy League.">全球最大規模中學生科學展，常春藤直通車。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-20">
+                        <input type="checkbox" id="task-20" class="task-checkbox" data-category="stem">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="Brain Bee 國際腦神經科學大賽" data-en="Brain Bee Neuroscience Competition">Brain Bee 國際腦神經科學大賽</span>
+                            <span class="task-desc lang-switch" data-zh="專注於神經科學、心理學及醫學的頂尖賽事。" data-en="Top competition focusing on neuroscience, psychology, and medicine.">專注於神經科學、心理學及醫學的頂尖賽事。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-21">
+                        <input type="checkbox" id="task-21" class="task-checkbox" data-category="stem">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="Euclid 歐幾里得數學競賽" data-en="Euclid Mathematics Contest">Euclid 歐幾里得數學競賽</span>
+                            <span class="task-desc lang-switch" data-zh="加拿大滑鐵盧大學主辦，理工科申請利器。" data-en="Hosted by Waterloo, highly recognized for STEM applications.">加拿大滑鐵盧大學主辦，理工科申請利器。</span>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="category-title lang-switch" data-zh="🏛️ 商科、人文與領導力 (Humanities & Business)" data-en="🏛️ Humanities & Business Activities">🏛️ 商科、人文與領導力 (Humanities & Business)</div>
+                <div class="task-list">
+                    <label class="task-item" for="task-22">
+                        <input type="checkbox" id="task-22" class="task-checkbox" data-category="humanities">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="NEC 全美經濟學挑戰賽" data-en="NEC: National Economics Challenge">NEC 全美經濟學挑戰賽</span>
+                            <span class="task-desc lang-switch" data-zh="最具影響力的經濟學競賽，商科申請首選。" data-en="Most influential econ contest, top choice for business apps.">最具影響力的經濟學競賽，商科申請首選。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-23">
+                        <input type="checkbox" id="task-23" class="task-checkbox" data-category="humanities">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="John Locke 論文寫作比賽" data-en="John Locke Essay Competition">John Locke 論文寫作比賽</span>
+                            <span class="task-desc lang-switch" data-zh="牛津大學學者評審，文商社科含金量極高。" data-en="Judged by Oxford academics, extremely high value for Humanities.">牛津大學學者評審，文商社科含金量極高。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-24">
+                        <input type="checkbox" id="task-24" class="task-checkbox" data-category="humanities">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="IEO 國際經濟奧林匹克" data-en="IEO: Economics Olympiad">IEO 國際經濟奧林匹克</span>
+                            <span class="task-desc lang-switch" data-zh="展示宏觀、微觀經濟學與商業案例分析能力。" data-en="Showcase macro/micro economics and business case analysis.">展示宏觀、微觀經濟學與商業案例分析能力。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-25">
+                        <input type="checkbox" id="task-25" class="task-checkbox" data-category="humanities">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="FBLA 美利堅商業領袖峰會" data-en="FBLA: Business Leaders of America">FBLA 美利堅商業領袖峰會</span>
+                            <span class="task-desc lang-switch" data-zh="全球最大中學生商科競賽，體現領導與創業精神。" data-en="World's largest high school business contest, shows leadership.">全球最大中學生商科競賽，體現領導與創業精神。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-26">
+                        <input type="checkbox" id="task-26" class="task-checkbox" data-category="humanities">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="MUN 模擬聯合國 (主席/最佳代表)" data-en="MUN: Model United Nations">MUN 模擬聯合國 (主席/最佳代表)</span>
+                            <span class="task-desc lang-switch" data-zh="展現國際視野、演講辯論與政策分析能力。" data-en="Shows global perspective, public speaking, and policy analysis.">展現國際視野、演講辯論與政策分析能力。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-27">
+                        <input type="checkbox" id="task-27" class="task-checkbox" data-category="humanities">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="The Concord Review 歷史論文發表" data-en="The Concord Review Publication">The Concord Review 歷史論文發表</span>
+                            <span class="task-desc lang-switch" data-zh="全球唯一中學生歷史學術期刊，發表難度極大。" data-en="Only history journal for high schoolers, extremely hard to publish.">全球唯一中學生歷史學術期刊，發表難度極大。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-28">
+                        <input type="checkbox" id="task-28" class="task-checkbox" data-category="humanities">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="NYT 紐約時報寫作比賽" data-en="NYT Writing Competitions">NYT 紐約時報寫作比賽</span>
+                            <span class="task-desc lang-switch" data-zh="如個人敘事、評論寫作，展現獨特思想深度。" data-en="Personal narrative, editorial writing to show intellectual depth.">如個人敘事、評論寫作，展現獨特思想深度。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-29">
+                        <input type="checkbox" id="task-29" class="task-checkbox" data-category="humanities">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="NSDA 全美演講與辯論聯賽" data-en="NSDA Speech & Debate">NSDA 全美演講與辯論聯賽</span>
+                            <span class="task-desc lang-switch" data-zh="證明極致的英語口語表達與邏輯思辨能力。" data-en="Proves exceptional English speaking and logical reasoning.">證明極致的英語口語表達與邏輯思辨能力。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-30">
+                        <input type="checkbox" id="task-30" class="task-checkbox" data-category="humanities">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="IOL 國際語言學奧林匹克" data-en="IOL: Linguistics Olympiad">IOL 國際語言學奧林匹克</span>
+                            <span class="task-desc lang-switch" data-zh="跨越文理的學科競賽，考驗邏輯與語言破解。" data-en="Cross-disciplinary contest testing logic and language deciphering.">跨越文理的學科競賽，考驗邏輯與語言破解。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-31">
+                        <input type="checkbox" id="task-31" class="task-checkbox" data-category="humanities">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="Marshall Society 經濟學論文競賽" data-en="Marshall Society Essay">Marshall Society 經濟學論文競賽</span>
+                            <span class="task-desc lang-switch" data-zh="劍橋大學主辦，經濟學與社會政策方向極佳。" data-en="Hosted by Cambridge, excellent for Economics and Social Policy.">劍橋大學主辦，經濟學與社會政策方向極佳。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-32">
+                        <input type="checkbox" id="task-32" class="task-checkbox" data-category="humanities">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="WGHS 沃頓商學院投資賽" data-en="Wharton Investment Competition">WGHS 沃頓商學院投資賽</span>
+                            <span class="task-desc lang-switch" data-zh="賓大沃頓商學院主辦的高中生投資策略大賽。" data-en="High school investment strategy contest by Wharton, UPenn.">賓大沃頓商學院主辦的高中生投資策略大賽。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-33">
+                        <input type="checkbox" id="task-33" class="task-checkbox" data-category="humanities">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="BPA 商業專業人士菁英賽" data-en="BPA: Business Professionals">BPA 商業專業人士菁英賽</span>
+                            <span class="task-desc lang-switch" data-zh="涵蓋商業管理、金融、資訊科技的多維競賽。" data-en="Covers business management, finance, and IT skills.">涵蓋商業管理、金融、資訊科技的多維競賽。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-34">
+                        <input type="checkbox" id="task-34" class="task-checkbox" data-category="humanities">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="Pioneer Academics 先鋒學術項目" data-en="Pioneer Academics Research">Pioneer Academics 先鋒學術項目</span>
+                            <span class="task-desc lang-switch" data-zh="線上本科級別研究計畫，常春藤認可度高。" data-en="Undergraduate-level online research, highly recognized by Ivies.">線上本科級別研究計畫，常春藤認可度高。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-35">
+                        <input type="checkbox" id="task-35" class="task-checkbox" data-category="humanities">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="頂尖夏校 (如 YYGS 耶魯青年學者)" data-en="Top Summer Programs (e.g. YYGS)">頂尖夏校 (如 YYGS 耶魯青年學者)</span>
+                            <span class="task-desc lang-switch" data-zh="參與高選拔率夏校，展現學術熱情與全球連結。" data-en="Attend highly selective summer programs to show global engagement.">參與高選拔率夏校，展現學術熱情與全球連結。</span>
+                        </div>
+                    </label>
+                    <label class="task-item" for="task-36">
+                        <input type="checkbox" id="task-36" class="task-checkbox" data-category="humanities">
+                        <div class="custom-checkbox"></div>
+                        <div class="task-content">
+                            <span class="task-title lang-switch" data-zh="非營利組織 (NGO) 創辦或領導" data-en="NGO Founder or Leadership">非營利組織 (NGO) 創辦或領導</span>
+                            <span class="task-desc lang-switch" data-zh="體現社會責任感、解決真實世界問題的影響力。" data-en="Show social responsibility and impact in solving real-world issues.">體現社會責任感、解決真實世界問題的影響力。</span>
+                        </div>
+                    </label>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <p class="lang-switch" data-zh="Made by 第 14 組（黃文軒、黃宇軒、黃一朴） &copy; 2026 UniNav." data-en="Made by Group 14 (Wong Man Hin, Wong U Hin, Wong I Pok) &copy; 2026 UniNav.">Made by 第 14 組（黃文軒、黃宇軒、黃一朴） &copy; 2026 UniNav.</p>
+    </footer>
+
+    <script>
+        // === 淺色/深色模式切換 ===
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const rootElement = document.documentElement;
+        
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            rootElement.setAttribute('data-theme', 'dark');
+            themeToggleBtn.textContent = '☀️';
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            if (rootElement.getAttribute('data-theme') === 'dark') {
+                rootElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                themeToggleBtn.textContent = '🌙';
+            } else {
+                rootElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                themeToggleBtn.textContent = '☀️';
+            }
+        });
+
+        // === 語言切換邏輯 ===
+        const langToggleBtn = document.getElementById('lang-toggle');
+        let currentLang = localStorage.getItem('lang') || 'zh';
+
+        function updateLanguage(lang) {
+            document.querySelectorAll('.lang-switch').forEach(el => {
+                const customText = el.getAttribute(`data-${lang}`);
+                if (customText) {
+                    el.innerHTML = customText;
+                }
+            });
+            langToggleBtn.textContent = lang === 'zh' ? 'EN' : '中';
+            document.documentElement.lang = lang === 'zh' ? 'zh-HK' : 'en';
+        }
+
+        langToggleBtn.addEventListener('click', () => {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            localStorage.setItem('lang', currentLang);
+            updateLanguage(currentLang);
+        });
+
+        updateLanguage(currentLang);
+
+        // === Check-list & LocalStorage 進度邏輯 ===
+        const checkboxes = document.querySelectorAll('.task-checkbox');
+        const resetBtn = document.getElementById('reset-btn');
+
+        // 左側元素
+        const badge = document.getElementById('tier-badge');
+        const barAcademic = document.getElementById('bar-academic');
+        const scoreAcademic = document.getElementById('score-academic');
+        const barStem = document.getElementById('bar-stem');
+        const scoreStem = document.getElementById('score-stem');
+        const barHumanities = document.getElementById('bar-humanities');
+        const scoreHumanities = document.getElementById('score-humanities');
+
+        // 讀取 LocalStorage 中的進度數據
+        let savedTasks = JSON.parse(localStorage.getItem('uniNav_tasks')) || {};
+
+        function calculateProgress() {
+            let academicCount = 0;
+            let stemCount = 0;
+            let humanitiesCount = 0;
+
+            checkboxes.forEach(cb => {
+                const parent = cb.closest('.task-item');
+                const category = cb.getAttribute('data-category');
+                
+                if (cb.checked) {
+                    if(category === 'academic') academicCount++;
+                    if(category === 'stem') stemCount++;
+                    if(category === 'humanities') humanitiesCount++;
+                    parent.classList.add('completed');
+                } else {
+                    parent.classList.remove('completed');
+                }
+            });
+
+            // 目標設定：學術滿 3 項即可，理科滿 4 項即可，商文滿 3 項即可 (符合現實申請)
+            const TARGET_ACADEMIC = 3;
+            const TARGET_STEM = 4;
+            const TARGET_HUMANITIES = 3;
+
+            const pctAcademic = Math.min(100, Math.round((academicCount / TARGET_ACADEMIC) * 100));
+            const pctStem = Math.min(100, Math.round((stemCount / TARGET_STEM) * 100));
+            const pctHumanities = Math.min(100, Math.round((humanitiesCount / TARGET_HUMANITIES) * 100));
+
+            // 更新分項進度條
+            barAcademic.style.width = pctAcademic + '%';
+            scoreAcademic.innerText = pctAcademic + '%';
+
+            barStem.style.width = pctStem + '%';
+            scoreStem.innerText = pctStem + '%';
+
+            barHumanities.style.width = pctHumanities + '%';
+            scoreHumanities.innerText = pctHumanities + '%';
+
+            // 計算綜合評級 (Total Score)
+            const totalScore = (pctAcademic + pctStem + pctHumanities) / 3;
+            
+            // 清除舊評級 class
+            badge.classList.remove('tier-s', 'tier-a', 'tier-b', 'tier-c');
+
+            if (totalScore >= 90) {
+                badge.innerText = 'S';
+                badge.classList.add('tier-s');
+            } else if (totalScore >= 70) {
+                badge.innerText = 'A';
+                badge.classList.add('tier-a');
+            } else if (totalScore >= 40) {
+                badge.innerText = 'B';
+                badge.classList.add('tier-b');
+            } else {
+                badge.innerText = 'C';
+                badge.classList.add('tier-c');
+            }
+        }
+
+        // 初始化狀態
+        checkboxes.forEach(cb => {
+            const taskId = cb.id;
+            if (savedTasks[taskId]) {
+                cb.checked = true;
+            }
+
+            // 綁定點擊事件
+            cb.addEventListener('change', function() {
+                savedTasks[taskId] = this.checked;
+                localStorage.setItem('uniNav_tasks', JSON.stringify(savedTasks));
+                calculateProgress();
+            });
+        });
+
+        // 初次載入時計算一次進度
+        setTimeout(calculateProgress, 200);
+
+        // 重置按鈕邏輯
+        resetBtn.addEventListener('click', () => {
+            const confirmMsg = currentLang === 'zh' ? '確定要重置所有計畫進度嗎？' : 'Are you sure you want to reset all progress?';
+            if (confirm(confirmMsg)) {
+                localStorage.removeItem('uniNav_tasks');
+                savedTasks = {};
+                checkboxes.forEach(cb => {
+                    cb.checked = false;
+                });
+                calculateProgress();
+            }
+        });
+    </script>
+</body>
+</html>

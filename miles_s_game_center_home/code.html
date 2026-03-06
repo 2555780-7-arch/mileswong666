@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html class="dark" lang="zh-Hant"><head>
+<html class="dark" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Miles's Game Center - 遊戲中心</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<title>Miles's Game Center Home</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script id="tailwind-config">
     tailwind.config = {
@@ -28,36 +28,6 @@
     }
   </script>
 </head>
-<style>
-  /* 平滑的主題過渡效果 */
-  html {
-    transition: background-color 0.5s ease, color 0.5s ease;
-  }
-  
-  body {
-    transition: background-color 0.5s ease, color 0.5s ease;
-  }
-  
-  /* 為所有可能受主題影響的元素添加過渡 */
-  html.theme-transitioning * {
-    transition-property: background-color, border-color, color, fill, stroke, opacity, transform;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 0.5s;
-  }
-  
-  /* 正常狀態下沒有過渡，避免初始加載時的動畫 */
-  * {
-    transition: none;
-  }
-  
-  /* 排除某些不需要過渡的元素 */
-  .material-symbols-outlined,
-  img,
-  svg,
-  canvas {
-    transition: none !important;
-  }
-</style>
 <body class="bg-background-light dark:bg-background-dark font-display antialiased min-h-screen flex flex-col">
 <div class="w-full bg-surface-light dark:bg-surface-dark border-b border-gray-200 dark:border-gray-800">
 <header class="layout-container px-4 md:px-10 py-4 flex flex-col md:flex-row items-center justify-between gap-4 max-w-[1280px] mx-auto w-full">
@@ -73,28 +43,24 @@
 </button>
 </div>
 <nav class="hidden md:flex items-center gap-8">
-<a class="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors" href="#">首頁</a>
-<a class="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors" href="#games">遊戲</a>
-<a class="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors" href="#">排行榜</a>
-<a class="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors" href="#">關於</a>
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors" href="#">Home</a>
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors" href="#">Games</a>
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors" href="#">Leaderboard</a>
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors" href="#">About</a>
 </nav>
 <div class="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
 <label class="flex items-center w-full md:w-64 h-10 bg-gray-100 dark:bg-[#1f2622] rounded-lg overflow-hidden border border-transparent focus-within:border-primary transition-colors">
 <div class="flex items-center justify-center pl-3 pr-2 text-slate-400">
 <span class="material-symbols-outlined text-[20px]">search</span>
 </div>
-<input class="w-full bg-transparent border-none text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:ring-0 px-0 h-full" placeholder="搜尋遊戲..."/>
+<input class="w-full bg-transparent border-none text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:ring-0 px-0 h-full" placeholder="Search games..."/>
 </label>
 <div class="flex gap-3 w-full md:w-auto">
-<button id="themeToggle" class="h-10 px-4 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-slate-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-2">
-  <span id="themeIcon" class="material-symbols-outlined text-[18px]">dark_mode</span>
-  <span id="themeText">深色模式</span>
-</button>
 <button class="flex-1 md:flex-none h-10 px-5 bg-primary hover:bg-primary/90 text-background-dark text-sm font-bold rounded-lg transition-colors flex items-center justify-center">
-            註冊
+            Sign Up
           </button>
 <button class="flex-1 md:flex-none h-10 px-5 bg-transparent border border-gray-300 dark:border-gray-700 text-slate-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-bold rounded-lg transition-colors flex items-center justify-center">
-            登入
+            Login
           </button>
 </div>
 </div>
@@ -106,36 +72,36 @@
 <div class="relative z-10 flex flex-col items-center text-center max-w-3xl gap-6">
 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm">
 <span class="size-2 rounded-full bg-primary animate-pulse"></span>
-<span class="text-primary text-xs font-bold uppercase tracking-wider">新賽季上線</span>
+<span class="text-primary text-xs font-bold uppercase tracking-wider">New Season Live</span>
 </div>
 <h1 class="text-white text-5xl md:text-7xl font-black leading-[0.9] tracking-tighter uppercase drop-shadow-lg">
-            編碼。 <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-green-300">遊玩。</span> <span class="text-accent">灌籃。</span>
+            Code. <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-green-300">Play.</span> <span class="text-accent">Dunk.</span>
 </h1>
 <p class="text-slate-300 text-lg md:text-xl font-normal max-w-2xl leading-relaxed">
-            歡迎來到終極高能量遊戲中心。體驗物理籃球和街頭跑酷，在充滿科技感的遊戲世界中挑戰自我。
+            Welcome to the ultimate high-energy gaming hub. Experience physics-based hoops and street-style runners in a gritty, tech-infused world.
           </p>
 <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mt-4">
-<a href="#games" class="h-12 px-8 bg-primary hover:bg-primary/90 text-background-dark text-base font-bold rounded-lg transition-all transform hover:scale-105 flex items-center justify-center gap-2">
+<button class="h-12 px-8 bg-primary hover:bg-primary/90 text-background-dark text-base font-bold rounded-lg transition-all transform hover:scale-105 flex items-center justify-center gap-2">
 <span class="material-symbols-outlined">explore</span>
-              探索遊戲
-            </a>
+              Explore Games
+            </button>
 <button class="h-12 px-8 bg-surface-dark/50 hover:bg-surface-dark border border-white/10 text-white text-base font-bold rounded-lg backdrop-blur-md transition-all flex items-center justify-center gap-2">
 <span class="material-symbols-outlined">trophy</span>
-              排行榜
+              Leaderboard
             </button>
 </div>
 </div>
 <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-background-dark to-transparent"></div>
 </div>
 </div>
-<div class="layout-container max-w-[1280px] mx-auto px-4 md:px-10 pb-16" id="games">
+<div class="layout-container max-w-[1280px] mx-auto px-4 md:px-10 pb-16">
 <div class="flex items-center justify-between mb-8">
 <div>
-<h2 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">精選遊戲</h2>
-<p class="text-slate-500 dark:text-slate-400 mt-1">選擇你的挑戰</p>
+<h2 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Featured Games</h2>
+<p class="text-slate-500 dark:text-slate-400 mt-1">Select your challenge</p>
 </div>
 <div class="hidden sm:flex items-center gap-1 text-primary hover:text-primary/80 font-bold text-sm">
-          2 款遊戲可玩 <span class="material-symbols-outlined text-lg">videogame_asset</span>
+          2 Games Available <span class="material-symbols-outlined text-lg">videogame_asset</span>
 </div>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 justify-center">
@@ -156,7 +122,7 @@
 </div>
 </div>
 <p class="text-slate-600 dark:text-slate-400 text-sm mb-6 line-clamp-2 flex-grow">
-              掌握拋物線，統治球場。計算角度、控制力量，在這個物理挑戰中投出不可能的投籃。
+              Master the arc and dominate the court. Calculate angles, control power, and hit impossible shots in this physics-based challenge.
             </p>
 <div class="flex items-center justify-between mt-auto">
 <div class="flex -space-x-2">
@@ -166,10 +132,10 @@
                   +2k
                 </div>
 </div>
-<a href="ballgame.html" class="h-10 px-6 bg-primary hover:bg-primary/90 text-background-dark text-sm font-bold rounded-lg transition-colors flex items-center gap-2">
+<button class="h-10 px-6 bg-primary hover:bg-primary/90 text-background-dark text-sm font-bold rounded-lg transition-colors flex items-center gap-2">
 <span class="material-symbols-outlined text-[18px]">play_arrow</span>
-                開始遊玩
-              </a>
+                Play Now
+              </button>
 </div>
 </div>
 </div>
@@ -190,7 +156,7 @@
 </div>
 </div>
 <p class="text-slate-600 dark:text-slate-400 text-sm mb-6 line-clamp-2 flex-grow">
-              躲避障礙物，逃離追捕。收集噴漆罐，解鎖皮膚，在這個街頭跑酷遊戲中留下你的印記。
+              Dodge obstacles and outrun the law in this gritty urban runner. Collect spray cans, unlock skins, and leave your mark on the city.
             </p>
 <div class="flex items-center justify-between mt-auto">
 <div class="flex -space-x-2">
@@ -200,10 +166,10 @@
                   +5k
                 </div>
 </div>
-<a href="parkour.html" class="h-10 px-6 bg-primary hover:bg-primary/90 text-background-dark text-sm font-bold rounded-lg transition-colors flex items-center gap-2">
+<button class="h-10 px-6 bg-primary hover:bg-primary/90 text-background-dark text-sm font-bold rounded-lg transition-colors flex items-center gap-2">
 <span class="material-symbols-outlined text-[18px]">play_arrow</span>
-                開始遊玩
-              </a>
+                Play Now
+              </button>
 </div>
 </div>
 </div>
@@ -232,77 +198,5 @@
 </div>
 </div>
 </footer>
-<script>
-// 主題切換功能
-const themeToggle = document.getElementById('themeToggle');
-const themeIcon = document.getElementById('themeIcon');
-const themeText = document.getElementById('themeText');
 
-// 檢查本地儲存的主題設定或系統偏好
-const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
-const savedTheme = localStorage.getItem('theme');
-
-// 設定主題函數 - 改進版，添加平滑過渡
-function setTheme(theme, isInitial = false) {
-    // 如果是初始加載，直接設置主題而不添加過渡class
-    if (!isInitial) {
-        // 添加過渡class來啟用平滑效果
-        document.documentElement.classList.add('theme-transitioning');
-        
-        // 短暫延遲以確保CSS過渡生效
-        setTimeout(() => {
-            if (theme === 'dark') {
-                document.documentElement.classList.add('dark');
-                themeIcon.textContent = 'light_mode';
-                themeText.textContent = '淺色模式';
-            } else {
-                document.documentElement.classList.remove('dark');
-                themeIcon.textContent = 'dark_mode';
-                themeText.textContent = '深色模式';
-            }
-            
-            // 過渡完成後移除過渡class
-            setTimeout(() => {
-                document.documentElement.classList.remove('theme-transitioning');
-            }, 500); // 與CSS過渡時間匹配
-        }, 10);
-    } else {
-        // 初始加載時直接設置，不添加過渡效果
-        if (theme === 'dark') {
-            document.documentElement.classList.add('dark');
-            themeIcon.textContent = 'light_mode';
-            themeText.textContent = '淺色模式';
-        } else {
-            document.documentElement.classList.remove('dark');
-            themeIcon.textContent = 'dark_mode';
-            themeText.textContent = '深色模式';
-        }
-    }
-    
-    localStorage.setItem('theme', theme);
-}
-
-// 初始化主題
-if (savedTheme) {
-    setTheme(savedTheme, true);
-} else if (prefersDarkScheme.matches) {
-    setTheme('dark', true);
-} else {
-    setTheme('light', true);
-}
-
-// 切換主題事件監聽
-themeToggle.addEventListener('click', () => {
-    const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme, false);
-});
-
-// 監聽系統主題變化
-prefersDarkScheme.addEventListener('change', (e) => {
-    if (!localStorage.getItem('theme')) {
-        setTheme(e.matches ? 'dark' : 'light', false);
-    }
-});
-</script>
 </body></html>

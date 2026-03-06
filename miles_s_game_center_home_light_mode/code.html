@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Miles's Game Center</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#00e65c",
+                        "accent": "#ffcc00",
+                        "background-light": "#f8f9fa",
+                        "background-dark": "#0f2317",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1a2e22",
+                        "text-primary-light": "#0c1d13",
+                        "text-secondary-light": "#4a5d52",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                    backgroundImage: {
+                        'grid-pattern': "linear-gradient(to right, #e5e7eb 1px, transparent 1px), linear-gradient(to bottom, #e5e7eb 1px, transparent 1px)",
+                    }
+                },
+            },
+        }
+    </script>
+<style>::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-primary-light antialiased overflow-x-hidden min-h-screen flex flex-col">
+<header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 bg-surface-light/90 backdrop-blur-md px-6 py-4 lg:px-10">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-text-primary-light">
+<div class="flex items-center justify-center size-10 rounded-lg bg-primary/20 text-primary">
+<span class="material-symbols-outlined text-[28px]">stadia_controller</span>
+</div>
+<div>
+<h2 class="text-xl font-bold leading-tight tracking-tight">Miles's Game Center</h2>
+<p class="text-xs font-bold text-primary uppercase tracking-wider">Code. Play. Dunk.</p>
+</div>
+</div>
+<nav class="hidden lg:flex items-center gap-8">
+<a class="text-text-primary-light hover:text-primary transition-colors text-sm font-semibold" href="#">Home</a>
+<a class="text-text-secondary-light hover:text-primary transition-colors text-sm font-medium" href="#">Games</a>
+<a class="text-text-secondary-light hover:text-primary transition-colors text-sm font-medium" href="#">Leaderboards</a>
+<a class="text-text-secondary-light hover:text-primary transition-colors text-sm font-medium" href="#">Community</a>
+</nav>
+</div>
+<div class="flex flex-1 justify-end gap-4 lg:gap-8 items-center">
+<label class="hidden md:flex flex-col w-full max-w-xs h-10 group">
+<div class="flex w-full flex-1 items-center rounded-lg bg-slate-100 border border-transparent focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+<div class="text-slate-400 flex items-center justify-center pl-3">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="w-full bg-transparent border-none text-sm text-text-primary-light placeholder:text-slate-400 focus:ring-0 px-3 h-full font-body" placeholder="Search games, players..." type="text"/>
+</div>
+</label>
+<div class="flex gap-3">
+<button class="hidden sm:flex items-center justify-center rounded-lg h-10 px-5 bg-transparent border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-text-primary-light text-sm font-bold transition-all">
+                    Log In
+                </button>
+<button class="flex items-center justify-center rounded-lg h-10 px-5 bg-primary hover:bg-primary/90 text-text-primary-light shadow-[0_2px_10px_-2px_rgba(0,230,92,0.4)] text-sm font-bold transition-all transform active:scale-95">
+                    Sign Up
+                </button>
+</div>
+<button class="lg:hidden flex items-center justify-center size-10 rounded-lg bg-slate-100 text-text-primary-light">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="hidden lg:block bg-center bg-no-repeat bg-cover rounded-full size-10 border-2 border-primary cursor-pointer transition-transform hover:scale-105" data-alt="User profile picture placeholder" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB22KCWtvIXQjZVv15ws3zdU2ccw00yjEiqS_ojAGhBYIUrlYJV7yi26omade18_rauh_XJiOdoCPP498q4x1J9dkl80Jb-2LvImqcxvk-rlpJfgK_b5T6xX0VrlwQ7y1bqi3Ifyk6fd3CY6K6fMHwgA34CQ6tYA8uTrtOu94FkT76iM68fSiICkyZTkYYH7t5ZoQVjblHIElTPBt1jFDtQ6-6bKGKKEPDQ5lBuI1Q1KNKKCWR1BaTUsVSqDMRoFY-AuRXkhNLRgPM");'></div>
+</div>
+</header>
+<main class="flex-1 flex justify-center w-full relative">
+<div class="absolute inset-0 bg-grid-pattern [background-size:40px_40px] opacity-40 pointer-events-none z-0"></div>
+<div class="w-full max-w-[1280px] px-4 md:px-6 lg:px-10 py-6 lg:py-10 z-10 flex flex-col gap-10">
+<div class="@container w-full">
+<div class="relative overflow-hidden rounded-2xl bg-black group">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="Abstract colorful gaming controller and neon lights" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA6RXXdqrIknvsQhzUSQvkQD8KJo3NBPb7901kQlLOhULhazA4HNwakynI3UzxF0VbqGZRe6buuvDQsiB0kdapPejiDRdGv4ZwysISY7vv_0kwdWyzZ2zM5gm1QTp9Pu4NxkQGfokxW6OKoWAZDCqGsTxMxGYXTVi1C66gq7KRc_cXiG5jQJao76K3oj1-RAdXUP3ll5WgNC2v-xXFMvMGFQWU-UPhEBJBDF0TBdjwEbazxaRzA4Mcfsp5Nc9pWQHQ8o6hkNNMymRM");'>
+</div>
+<div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
+<div class="relative flex min-h-[400px] flex-col justify-center gap-6 px-6 py-12 md:px-12 md:py-16 max-w-2xl">
+<div class="flex flex-col gap-3 text-left animate-fade-in-up">
+<span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/20 border border-accent/40 w-fit backdrop-blur-sm">
+<span class="size-2 rounded-full bg-accent animate-pulse"></span>
+<span class="text-accent text-xs font-bold uppercase tracking-wider">New Season Live</span>
+</span>
+<h1 class="text-white text-4xl md:text-5xl lg:text-6xl font-black leading-[1.1] tracking-tight drop-shadow-lg">
+                                Level Up Your<br/>
+<span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Day Game</span>
+</h1>
+<h2 class="text-slate-200 text-base md:text-lg font-medium leading-relaxed max-w-lg mt-2">
+                                Experience the best web games in a professional, high-energy environment. No downloads, just pure skill.
+                            </h2>
+</div>
+<div class="flex flex-wrap gap-4 mt-2">
+<button class="flex items-center justify-center rounded-lg h-12 px-6 bg-primary hover:bg-primary/90 text-text-primary-light text-base font-bold tracking-wide transition-all shadow-[0_0_20px_-5px_rgba(0,230,92,0.6)] transform hover:-translate-y-1">
+<span class="material-symbols-outlined mr-2 text-[20px]">explore</span>
+                                Explore Games
+                            </button>
+<button class="flex items-center justify-center rounded-lg h-12 px-6 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white text-base font-bold tracking-wide transition-all">
+                                View Leaderboards
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col lg:flex-row gap-8 items-start">
+<div class="flex-1 w-full flex flex-col gap-8">
+<div class="flex items-end justify-between border-b border-slate-200 pb-4">
+<div class="flex flex-col gap-1">
+<h3 class="text-2xl font-bold text-text-primary-light">Featured Games</h3>
+<p class="text-text-secondary-light text-sm">Top rated picks for this week</p>
+</div>
+</div>
+<div class="grid grid-cols-1 gap-6">
+<div class="@container group hover:shadow-xl transition-all duration-300 rounded-xl bg-surface-light border border-slate-100 overflow-hidden flex flex-col md:flex-row">
+<div class="w-full md:w-2/5 aspect-video md:aspect-auto relative overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" data-alt="Basketball hoop silhouette against colorful sky" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCGd__bFadAf_YpJsYqG8ot-C80LrOHa_8HmKg4VzFlpbA-hhAZvuhcjesUlYU3UVzkS_llGenlAVo6WZJTe809LhPXYozoYYF3E40KARB2ZdT4Ke7Y5xsc8XZ0iXCoAMxUCdkcQJWDwZJD5gdUWy18myt1ndIfY9IJC13Rxt-LQEkvaRgMFAm10mF0TP6Uf5lwNZ2F3bKhOmlvP30rqs6CxLayD0yNVf1Dl1agz9n7tEh6i3eti1k65IarZ_yah0nh2_S6j44SL-Q");'></div>
+<div class="absolute top-3 left-3 bg-white/90 backdrop-blur text-xs font-bold px-2 py-1 rounded text-text-primary-light shadow-sm">
+<span class="material-symbols-outlined text-[14px] align-middle mr-1 text-orange-500">local_fire_department</span> Trending
+                                </div>
+</div>
+<div class="flex-1 p-5 md:p-6 flex flex-col justify-between gap-4">
+<div>
+<div class="flex justify-between items-start mb-2">
+<h4 class="text-xl font-bold text-text-primary-light group-hover:text-primary transition-colors">Greek Freak: Physics Hoops V2</h4>
+<div class="flex items-center gap-1 text-amber-400 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100">
+<span class="material-symbols-outlined text-[16px] fill-current">star</span>
+<span class="text-xs font-bold text-amber-700">4.9</span>
+</div>
+</div>
+<p class="text-text-secondary-light text-sm line-clamp-2 leading-relaxed">Master the court with gravity-defying dunks and physics-based challenges. Compete globally for the highest score.</p>
+<div class="flex gap-2 mt-4 flex-wrap">
+<span class="text-xs font-medium px-2 py-1 bg-slate-100 text-slate-600 rounded">Sports</span>
+<span class="text-xs font-medium px-2 py-1 bg-slate-100 text-slate-600 rounded">Physics</span>
+<span class="text-xs font-medium px-2 py-1 bg-slate-100 text-slate-600 rounded">Multiplayer</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-slate-100 mt-2">
+<div class="flex -space-x-2">
+<img alt="Player 1" class="w-8 h-8 rounded-full border-2 border-white" data-alt="User avatar male" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLCpBGQrnf5cWvOZm9-tXVtW1_Hbll07m6b4DPSfqDH4iULuClf9_QwmdZeMxqG7I-P9M0c9XMpjFWc3zBgNlciPuy4dMmmRArU8EWMdXyD_bm-DhWXzNuK0HoVf0eEjiCJYknSxxVx9DzKr8me4StsTD8XI46aBnwtHvOD00mQ9f98GTnf8p0s2rPYokiQiEV7olLyUdB8bVLuJutGLBC1rL1N7PorQBe1wUbzIg0FU6sIlgXsoj7Vumd5BVR_nQ3cpau45l1XZQ"/>
+<img alt="Player 2" class="w-8 h-8 rounded-full border-2 border-white" data-alt="User avatar female" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAD_OMgmNsKLF2Z6WRPe3weCWbwVOH1_FqpkdPx78C7C3jMeVlnjcIGEGByOnuSo3nOKrhDciKxHMJGyOM_Qz-504zrv3cdSLhQhpLAktoR-jFJvkAmg6SFvIe5LHGAPocwxLQzHAYItofiltd_KuU3LybIt3xsiwSV0jeoqJahl8EG9oBq_99NcUUrsc01vJFRtnR5RtAumMZLTRDGMb7BvfRsc0flJokHE1dWlORSN432eYO1hRETXvdKGkw3quY6sE8wScs1mZQ"/>
+<div class="w-8 h-8 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500">+2k</div>
+</div>
+<button class="flex items-center justify-center rounded-lg h-9 px-4 bg-primary text-text-primary-light text-sm font-bold hover:bg-primary/90 transition-all shadow-md hover:shadow-lg">
+                                        Play Now
+                                    </button>
+</div>
+</div>
+</div>
+<div class="@container group hover:shadow-xl transition-all duration-300 rounded-xl bg-surface-light border border-slate-100 overflow-hidden flex flex-col md:flex-row">
+<div class="w-full md:w-2/5 aspect-video md:aspect-auto relative overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" data-alt="Neon subway station tunnel perspective" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBtyGBMohr8S8R8D9W3OPf3nkn80nuQQcuXh-qMXvE54Vr59YTjeWEEz-74icVvZr5vhFdMXbMMluSNVsQbv9tuuJ-rkNHPCVCuWeL7_yhz1zujfMNbGyvtV2rNDEs37iAn2mvgvsWhDjcXZTNqvB43TIiYS0tHmhBPejhjDMj_PTQC62dB14vBpwwgiZ2427iqhrQ3xnEq_9WM8MUnEIGxzugmxlho3yemzt9_BY3Zcx8xZWpuhqGf88gxI2Qc3GFWKQNwTUr1op4");'></div>
+</div>
+<div class="flex-1 p-5 md:p-6 flex flex-col justify-between gap-4">
+<div>
+<div class="flex justify-between items-start mb-2">
+<h4 class="text-xl font-bold text-text-primary-light group-hover:text-primary transition-colors">Subway Dash 2D</h4>
+<div class="flex items-center gap-1 text-amber-400 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100">
+<span class="material-symbols-outlined text-[16px] fill-current">star</span>
+<span class="text-xs font-bold text-amber-700">4.7</span>
+</div>
+</div>
+<p class="text-text-secondary-light text-sm line-clamp-2 leading-relaxed">Dodge trains and collect coins in this fast-paced urban runner. Unlock new characters and hoverboards.</p>
+<div class="flex gap-2 mt-4 flex-wrap">
+<span class="text-xs font-medium px-2 py-1 bg-slate-100 text-slate-600 rounded">Arcade</span>
+<span class="text-xs font-medium px-2 py-1 bg-slate-100 text-slate-600 rounded">Runner</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-slate-100 mt-2">
+<div class="text-xs text-text-secondary-light font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">schedule</span> 5 min avg session
+                                    </div>
+<button class="flex items-center justify-center rounded-lg h-9 px-4 bg-primary text-text-primary-light text-sm font-bold hover:bg-primary/90 transition-all shadow-md hover:shadow-lg">
+                                        Play Now
+                                    </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<aside class="w-full lg:w-80 flex-shrink-0 flex flex-col gap-6">
+<div class="rounded-xl bg-surface-light border border-slate-200 p-6 shadow-sm">
+<div class="flex items-center gap-4 mb-4">
+<div class="size-12 rounded-full bg-gradient-to-br from-primary to-emerald-600 p-[2px]">
+<div class="size-full rounded-full bg-surface-light p-1">
+<img alt="Profile" class="w-full h-full rounded-full object-cover" data-alt="User profile avatar close up" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjdneSDZTlsws1lxZdYYDovAVbPU77PbmnUc6rqW5EeANJxkzy8u3LlP8htaKOKIkW06x5_Tj4khDxs5A8fuvMDajoCdubb3xcUpXx3VWGHxIc4jIlIeE7ZUuTPqxioTvzT-c_Z-sSydeHE67AUoaYmh6W2vT_70Cof5UH9XgmosgB6yIBns30gqXjtfASiCMSQBJ468cjSPV1zD2YEKFseK3oMBfXK2PvnQgpXTpPFH_Uj4_zCR8qfXTMIORSTD6LRiwHh1MrkVA"/>
+</div>
+</div>
+<div>
+<h4 class="font-bold text-text-primary-light">Miles Davis</h4>
+<p class="text-xs text-text-secondary-light font-medium">Level 42 Gamer</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="bg-slate-50 p-3 rounded-lg text-center border border-slate-100">
+<div class="text-xl font-black text-primary">12</div>
+<div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Wins</div>
+</div>
+<div class="bg-slate-50 p-3 rounded-lg text-center border border-slate-100">
+<div class="text-xl font-black text-accent">850</div>
+<div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">XP</div>
+</div>
+</div>
+</div>
+<div class="rounded-xl bg-surface-light border border-slate-200 p-6 shadow-sm">
+<h4 class="font-bold text-text-primary-light mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">category</span> Categories
+                        </h4>
+<div class="flex flex-col gap-2">
+<a class="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors group" href="#">
+<span class="text-sm font-medium text-text-secondary-light group-hover:text-text-primary-light">Action</span>
+<span class="bg-slate-100 text-slate-500 text-xs px-2 py-0.5 rounded-full group-hover:bg-primary/20 group-hover:text-primary-dark">24</span>
+</a>
+<a class="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors group" href="#">
+<span class="text-sm font-medium text-text-secondary-light group-hover:text-text-primary-light">Strategy</span>
+<span class="bg-slate-100 text-slate-500 text-xs px-2 py-0.5 rounded-full group-hover:bg-primary/20 group-hover:text-primary-dark">18</span>
+</a>
+<a class="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors group" href="#">
+<span class="text-sm font-medium text-text-secondary-light group-hover:text-text-primary-light">Puzzle</span>
+<span class="bg-slate-100 text-slate-500 text-xs px-2 py-0.5 rounded-full group-hover:bg-primary/20 group-hover:text-primary-dark">42</span>
+</a>
+<a class="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors group" href="#">
+<span class="text-sm font-medium text-text-secondary-light group-hover:text-text-primary-light">Sports</span>
+<span class="bg-slate-100 text-slate-500 text-xs px-2 py-0.5 rounded-full group-hover:bg-primary/20 group-hover:text-primary-dark">12</span>
+</a>
+</div>
+</div>
+<div class="rounded-xl overflow-hidden relative min-h-[200px] flex items-end p-6 group cursor-pointer">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Esports tournament arena with screens and lights" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC1xRlzJHjuQhPsLKPBGLPmKKi7YnPK0ooAFNGNlor4dxHnYrQudLw1biP4uQ7TJrld3nSyQhkJaD1MZRntWwhMGOzB4eN8WoDmjDorxRiG83Gz7BhnAN_0ZjVXKTDGide0uqygfTYCR7Ko5zwz7XViiEFwmTOfcL9Z45RINliQODMikXsIw8ovrj7zzjvsXDGjDZIM1TvvT04NlFUUVTAC6jBkgyyZSgXt0D8WcmWU2rF6DjsfYwxH9BYgh8aJ5tprsT08grWyVSc");'></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+<div class="relative z-10 text-white">
+<span class="bg-accent text-text-primary-light text-[10px] font-bold px-2 py-1 rounded mb-2 inline-block">EVENT</span>
+<h4 class="font-bold text-lg leading-tight">Summer Championship 2024</h4>
+<p class="text-xs text-white/80 mt-1 mb-3">Join the qualifiers today!</p>
+<button class="text-xs font-bold text-primary hover:text-white transition-colors flex items-center gap-1">
+                                Register Now <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</aside>
+</div>
+</div>
+</main>
+<footer class="border-t border-slate-200 bg-white py-10 mt-10">
+<div class="w-full max-w-[1280px] mx-auto px-6 lg:px-10 flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-3 text-text-primary-light">
+<div class="flex items-center justify-center size-8 rounded bg-primary/20 text-primary">
+<span class="material-symbols-outlined text-[20px]">stadia_controller</span>
+</div>
+<span class="text-lg font-bold">Miles's Game Center</span>
+</div>
+<div class="flex gap-8 text-sm text-text-secondary-light font-medium">
+<a class="hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="hover:text-primary transition-colors" href="#">Terms</a>
+<a class="hover:text-primary transition-colors" href="#">Support</a>
+</div>
+<div class="text-sm text-slate-400">
+                © 2024 Miles's Game Center. All rights reserved.
+            </div>
+</div>
+</footer>
+
+</body></html>

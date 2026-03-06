@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greek Freak: Physics Hoops V2</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0d1110;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #EEE1C6;
+            user-select: none;
+        }
+        #ui-layer {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        h1 {
+            margin: 0;
+            font-size: 32px;
+            color: #FFFFFF; /* 改為純白，大幅提升清晰度 */
+            text-shadow: 0 0 8px #00e65c, 0 0 2px #000; /* 優化發光效果和對比度 */
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 900;
+        }
+        #score-board {
+            font-size: 26px;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #FFFFFF;
+            text-shadow: 0 0 5px #00e65c;
+        }
+        #wind-display {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #4db8ff;
+            text-shadow: 0 0 5px #4db8ff;
+            pointer-events: none;
+        }
+        canvas {
+            display: block;
+        }
+        #instructions {
+            position: absolute;
+            bottom: 30px;
+            width: 100%;
+            text-align: center;
+            font-size: 16px;
+            color: rgba(238, 225, 198, 0.7);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui-layer">
+        <h1>Greek Freak Hoops</h1>
+        <div id="score-board">Score: <span id="score">0</span></div>
+    </div>
+    
+    <div id="wind-display">Wind: <span id="wind-value">0</span></div>
+    <div id="instructions">點擊並向後拖拽投籃 | 注意風向 | 躲避防守</div>
+
+    <canvas id="gameCanvas"></canvas>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const windEl = document.getElementById('wind-value');
+
+    let width, height;
+    let score = 0;
+    let particles = [];
+    let trails = [];
+    let wind = 0;
+
+    // 物理常數
+    const GRAVITY = 0.4;
+    const BOUNCE_DAMPING = 0.7;
+    const WALL_DAMPING = 0.8;
+
+    function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // 籃球對象
+    const ball = {
+        x: 100,
+        y: height - 100,
+        radius: 15,
+        vx: 0,
+        vy: 0,
+        isDragging: false,
+        isFlying: false,
+        startX: 0,
+        startY: 0,
+        color: '#E56B1F'
+    };
+
+    // 籃筐對象 (已降低難度)
+    const hoop = {
+        x: width - 150,
+        y: height / 2 - 50,
+        width: 110, // 加寬籃筐
+        height: 10,
+        thickness: 6,
+        color: '#00e65c'
+    };
+
+    // 防守球員對象
+    const defender = {
+        x: 0, // 在 update 中動態計算
+        y: height / 2,
+        width: 15,
+        height: 120,
+        vy: 3, // 移動速度
+        color: '#ff3333'
+    };
+
+    // 粒子系統
+    class Particle {
+        constructor(x, y, color) {
+            this.x = x;
+            this.y = y;
+            this.vx = (Math.random() - 0.5) * 12;
+            this.vy = (Math.random() - 0.5) * 12;
+            this.life = 1;
+            this.decay = Math.random() * 0.02 + 0.015;
+            this.color = color;
+            this.size = Math.random() * 5 + 2;
+        }
+        update() {
+            this.vy += GRAVITY * 0.5;
+            this.x += this.vx;
+            this.y += this.vy;
+            this.life -= this.decay;
+        }
+        draw(ctx) {
+            ctx.globalAlpha = Math.max(0, this.life);
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+    }
+
+    function createExplosion(x, y) {
+        for(let i=0; i<50; i++) {
+            particles.push(new Particle(x, y, i % 2 === 0 ? '#00e65c' : '#FFFFFF'));
+        }
+    }
+
+    // 更新風力
+    function updateWind() {
+        // 風力範圍 -3 到 3
+        wind = (Math.random() * 6 - 3).toFixed(1);
+        let windText = Math.abs(wind) + (wind > 0 ? " ➡" : " ⬅");
+        if (wind == 0) windText = "0";
+        windEl.innerText = windText;
+    }
+    setInterval(updateWind, 3000); // 每3秒換一次風向
+
+    // 輸入控制
+    let mouse = { x: 0, y: 0 };
+    
+    function getPointerPos(e) {
+        if (e.touches) {
+            return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }
+        return { x: e.clientX, y: e.clientY };
+    }
+
+    function startDrag(e) {
+        if (ball.isFlying) return;
+        const pos = getPointerPos(e);
+        const dist = Math.hypot(pos.x - ball.x, pos.y - ball.y);
+        if (dist < ball.radius * 4) { 
+            ball.isDragging = true;
+            ball.startX = pos.x;
+            ball.startY = pos.y;
+        }
+    }
+
+    function drag(e) {
+        mouse = getPointerPos(e);
+    }
+
+    function endDrag() {
+        if (ball.isDragging) {
+            ball.isDragging = false;
+            ball.isFlying = true;
+            ball.vx = (ball.x - mouse.x) * 0.18; // 稍微增強出手力度響應
+            ball.vy = (ball.y - mouse.y) * 0.18;
+            trails = []; 
+        }
+    }
+
+    window.addEventListener('mousedown', startDrag);
+    window.addEventListener('mousemove', drag);
+    window.addEventListener('mouseup', endDrag);
+    window.addEventListener('touchstart', startDrag, {passive: false});
+    window.addEventListener('touchmove', drag, {passive: false});
+    window.addEventListener('touchend', endDrag);
+
+    // 重置回合
+    function resetRound() {
+        ball.x = Math.random() * (width / 4) + 80;
+        ball.y = height - 100;
+        ball.vx = 0;
+        ball.vy = 0;
+        ball.isFlying = false;
+        trails = [];
+        hoop.y = Math.random() * (height / 2 - 100) + 150;
+    }
+
+    // 圓形與矩形碰撞檢測 (用於封蓋)
+    function checkCircleRectCollision(circle, rectX, rectY, rectW, rectH) {
+        let testX = circle.x;
+        let testY = circle.y;
+        
+        if (circle.x < rectX) testX = rectX;
+        else if (circle.x > rectX + rectW) testX = rectX + rectW;
+        
+        if (circle.y < rectY) testY = rectY;
+        else if (circle.y > rectY + rectH) testY = rectY + rectH;
+        
+        let distX = circle.x - testX;
+        let distY = circle.y - testY;
+        let distance = Math.sqrt((distX*distX) + (distY*distY));
+        
+        return distance <= circle.radius;
+    }
+
+    function update() {
+        hoop.x = width - 180;
+        
+        // 更新防守球員位置 (在籃筐前方)
+        defender.x = hoop.x - 100;
+        defender.y += defender.vy;
+        if (defender.y < 50 || defender.y + defender.height > height - 100) {
+            defender.vy *= -1; // 碰壁反彈
+        }
+
+        if (ball.isFlying) {
+            trails.push({x: ball.x, y: ball.y});
+            if (trails.length > 20) trails.shift(); // 加長殘影
+
+            // 應用物理：重力 + 風力
+            ball.vy += GRAVITY;
+            ball.vx += parseFloat(wind) * 0.015; // 風力影響加速度
+            
+            ball.x += ball.vx;
+            ball.y += ball.vy;
+
+            // 地板碰撞
+            if (ball.y + ball.radius > height) {
+                ball.y = height - ball.radius;
+                ball.vy *= -BOUNCE_DAMPING;
+                ball.vx *= 0.96; 
+            }
+            // 牆壁碰撞
+            if (ball.x + ball.radius > width || ball.x - ball.radius < 0) {
+                ball.vx *= -WALL_DAMPING;
+                if (ball.x > width / 2) ball.x = width - ball.radius;
+                else ball.x = ball.radius;
+            }
+
+            // 防守封蓋判定
+            if (checkCircleRectCollision(ball, defender.x, defender.y, defender.width, defender.height)) {
+                ball.vx *= -BOUNCE_DAMPING;
+                ball.x = defender.x - ball.radius; // 簡單推開防止卡住
+            }
+
+            // 籃筐判定 (大幅放寬判定區域降低難度)
+            let passedHoopX = ball.x > hoop.x - 20 && ball.x < hoop.x + hoop.width + 20;
+            let passedHoopY = ball.y > hoop.y - 15 && ball.y < hoop.y + 40;
+            
+            // 確保是從上往下落入籃筐
+            if (passedHoopX && passedHoopY && ball.vy > 1 && !ball.scored) {
+                score++;
+                scoreEl.innerText = score;
+                createExplosion(hoop.x + hoop.width/2, hoop.y + 10);
+                ball.scored = true; // 防止單次投籃重複計分
+                setTimeout(resetRound, 800); // 進球後延遲重置，欣賞一下特效
+            }
+
+            // 靜止後重置
+            if (ball.y >= height - ball.radius - 1 && Math.abs(ball.vy) < 1 && Math.abs(ball.vx) < 0.5) {
+                ball.scored = false;
+                resetRound();
+            }
+        }
+
+        // 更新粒子
+        for (let i = particles.length - 1; i >= 0; i--) {
+            particles[i].update();
+            if (particles[i].life <= 0) particles.splice(i, 1);
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, width, height);
+
+        // 畫防守球員
+        ctx.fillStyle = defender.color;
+        ctx.shadowColor = '#ff3333';
+        ctx.shadowBlur = 10;
+        ctx.fillRect(defender.x, defender.y, defender.width, defender.height);
+        ctx.shadowBlur = 0; // 重置陰影
+
+        // 畫籃板和籃筐
+        ctx.fillStyle = '#EEE1C6';
+        ctx.fillRect(hoop.x + hoop.width, hoop.y - 80, 8, 120); // 籃板
+        
+        ctx.fillStyle = hoop.color;
+        ctx.shadowColor = '#00e65c';
+        ctx.shadowBlur = 15;
+        ctx.fillRect(hoop.x, hoop.y, hoop.width, hoop.thickness); // 籃圈
+        ctx.shadowBlur = 0;
+        
+        // 畫網（裝飾性）
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(hoop.x, hoop.y + hoop.thickness);
+        ctx.lineTo(hoop.x + 25, hoop.y + 60);
+        ctx.lineTo(hoop.x + hoop.width - 25, hoop.y + 60);
+        ctx.lineTo(hoop.x + hoop.width, hoop.y + hoop.thickness);
+        ctx.stroke();
+
+        // 畫拖拽輔助線
+        if (ball.isDragging) {
+            ctx.beginPath();
+            ctx.moveTo(ball.x, ball.y);
+            ctx.lineTo(ball.x - (mouse.x - ball.x), ball.y - (mouse.y - ball.y));
+            ctx.strokeStyle = 'rgba(0, 230, 92, 0.8)';
+            ctx.lineWidth = 4;
+            ctx.setLineDash([10, 10]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // 畫球的殘影
+        trails.forEach((t, index) => {
+            ctx.beginPath();
+            ctx.arc(t.x, t.y, ball.radius * (index / trails.length), 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(229, 107, 31, ${index / trails.length * 0.6})`;
+            ctx.fill();
+        });
+
+        // 畫球
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+        ctx.fillStyle = ball.color;
+        ctx.fill();
+        ctx.strokeStyle = '#fff'; // 增加白色描邊讓球更立體
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // 畫粒子
+        particles.forEach(p => p.draw(ctx));
+    }
+
+    function loop() {
+        update();
+        draw();
+        requestAnimationFrame(loop);
+    }
+
+    resetRound();
+    updateWind();
+    loop();
+</script>
+
+</body>
+</html>

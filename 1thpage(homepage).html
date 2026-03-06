@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniNav 升學導航</title>
+    <style>
+        /* =========================================
+           色彩變量管理 (CSS Variables)
+           ========================================= */
+        :root {
+            --bg-color: #F8FAFC;
+            --text-main: #0F172A;
+            --text-muted: #475569;
+            --primary-color: #3B82F6;
+            --primary-hover: #1D4ED8;
+            --card-bg: #FFFFFF;
+            --card-shadow: rgba(0, 0, 0, 0.05);
+            --hero-overlay: rgba(248, 250, 252, 0.85);
+            --nav-bg: rgba(248, 250, 252, 0.9);
+            --border-color: #E2E8F0;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0F172A;
+            --text-main: #F8FAFC;
+            --text-muted: #CBD5E1;
+            --primary-color: #3B82F6;
+            --primary-hover: #60A5FA;
+            --card-bg: #1E293B;
+            --card-shadow: rgba(0, 0, 0, 0.2);
+            --hero-overlay: rgba(15, 23, 42, 0.85);
+            --nav-bg: rgba(15, 23, 42, 0.9);
+            --border-color: #334155;
+        }
+
+        /* 👑 新增：讓網頁滾動變得平滑 */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out, border-color 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* =========================================
+           導航欄 (Navbar)
+           ========================================= */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            background-color: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        /* 共用按鈕樣式 (主題切換與語言切換) */
+        .theme-toggle, .lang-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 5px var(--card-shadow);
+        }
+
+        .theme-toggle { font-size: 1.2rem; }
+        .lang-toggle { font-size: 1rem; font-weight: bold; }
+
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        /* =========================================
+           Hero 區域 (首屏主視覺)
+           ========================================= */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 5%;
+            margin-top: 60px;
+            background-color: var(--bg-color); 
+            background-image: 
+                linear-gradient(to bottom, var(--hero-overlay), var(--bg-color)),
+                url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2070&auto=format&fit=crop'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #FFFFFF;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+            color: #FFFFFF;
+        }
+
+        .product-intro {
+            margin-top: 2rem;
+            padding: 2rem;
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 8px 25px var(--card-shadow);
+            border-left: 4px solid var(--primary-color);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .product-intro h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+            text-align: center;
+        }
+
+        .product-intro p {
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .problem-section { padding: 5rem 5%; text-align: center; max-width: 900px; margin: 0 auto; }
+        .problem-section p { font-size: 1.2rem; color: var(--text-muted); line-height: 1.8; padding: 2rem; background-color: var(--card-bg); border-left: 4px solid var(--primary-color); border-radius: 8px; box-shadow: 0 4px 6px var(--card-shadow); }
+        .features { padding: 2rem 5% 5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto; }
+        .feature-card-link { text-decoration: none; color: inherit; display: block; }
+        .feature-card { background-color: var(--card-bg); padding: 2.5rem; border-radius: 16px; box-shadow: 0 10px 30px var(--card-shadow); border: 1px solid var(--border-color); border-top: 4px solid var(--primary-color); transition: transform 0.4s ease-in-out, box-shadow 0.4s ease-in-out; cursor: pointer; }
+        .feature-card-link:hover .feature-card { transform: translateY(-10px); box-shadow: 0 20px 40px var(--card-shadow); }
+        .feature-card h3 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-main); }
+        .feature-card p { color: var(--text-muted); }
+        .timeline-section { padding: 5rem 5%; background-color: var(--card-bg); text-align: center; }
+        .timeline-section h2 { margin-bottom: 3rem; font-size: 2rem; }
+        .timeline { display: flex; justify-content: center; align-items: flex-start; gap: 2rem; max-width: 1000px; margin: 0 auto; flex-wrap: wrap; }
+        .step { flex: 1; min-width: 250px; position: relative; }
+        .step-number { width: 50px; height: 50px; background: linear-gradient(135deg, var(--primary-color), var(--primary-hover)); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; margin: 0 auto 1rem; z-index: 2; position: relative; }
+        .step h4 { margin-bottom: 0.5rem; font-size: 1.2rem; }
+        .step p { color: var(--text-muted); font-size: 0.95rem; }
+        footer { text-align: center; padding: 2rem 5%; background-color: var(--bg-color); border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; flex-direction: column; position: absolute; top: 70px; left: 0; width: 100%; background-color: var(--card-bg); padding: 1rem 0; box-shadow: 0 10px 20px var(--card-shadow); border-bottom: 1px solid var(--border-color); }
+            .nav-links.active { display: flex; }
+            .hamburger { display: block; }
+            .hero h1 { font-size: 2.5rem; }
+            .timeline { flex-direction: column; align-items: center; }
+            .step { margin-bottom: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo lang-switch" data-zh="UniNav 升學導航" data-en="UniNav Navigator">UniNav 升學導航</div>
+        <button class="hamburger" id="hamburger">☰</button>
+        <div class="nav-links" id="nav-links">
+            <a href="index.html" class="lang-switch" data-zh="首頁" data-en="Home">首頁</a>
+            <a href="2ndpage.html" class="lang-switch" data-zh="升學計劃書" data-en="Study Plan">升學計劃書</a>
+            <a href="3rdpage.html" class="lang-switch" data-zh="計畫清單" data-en="Checklist">計畫清單</a>
+            <a href="4thpage.html" class="lang-switch" data-zh="全球名校庫" data-en="University Database">全球名校庫</a>
+            <button class="lang-toggle" id="lang-toggle" aria-label="切換語言">EN</button>
+            <button class="theme-toggle" id="theme-toggle" aria-label="切換深淺色模式">🌙</button>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero" id="hero">
+            <div class="hero-content">
+                <h1 class="lang-switch" data-zh="精準定位，你的專屬升學導航" data-en="Precise Targeting, Your Exclusive Study Navigator">精準定位，你的專屬升學導航</h1>
+                <p class="lang-switch" data-zh="告別海量資訊的迷茫，量化成績差距，為全澳中學生打造的清晰升學路徑。" data-en="Say goodbye to the confusion of massive information. We quantify the grade gap to create a clear study path for high school students.">告別海量資訊的迷茫，量化成績差距，為全澳中學生打造的清晰升學路徑。</p>
+                <div class="product-intro">
+                    <h3 class="lang-switch" data-zh="產品視覺介紹" data-en="Product Visual Introduction">產品視覺介紹</h3>
+                    <p class="lang-switch" data-zh="UniNav 提供直觀的視覺化界面，讓您清晰了解升學路徑與目標差距。透過圖表、進度條與色彩編碼，複雜的升學數據變得一目了然。" data-en="UniNav provides an intuitive visual interface that clearly shows your study path and goal gaps. Through charts, progress bars, and color coding, complex study data becomes easy to understand at a glance.">UniNav 提供直觀的視覺化界面，讓您清晰了解升學路徑與目標差距。透過圖表、進度條與色彩編碼，複雜的升學數據變得一目了然。</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="problem-section">
+            <p class="lang-switch" data-zh="面對厚重的大學指南與快速更新的資訊，高中生常感到迷茫。傳統查詢方式難以將個人成績（如 GPA 或 IAL）與錄取門檻進行量化對比，導致大家往往缺乏明確的學習目標。" data-en="Facing thick university guides and rapidly updating information, high school students often feel lost. Traditional query methods fail to quantify the gap between personal grades (e.g., GPA or IAL) and admission requirements, leaving students without clear learning goals.">面對厚重的大學指南與快速更新的資訊，高中生常感到迷茫。傳統查詢方式難以將個人成績（如 GPA 或 IAL）與錄取門檻進行量化對比，導致大家往往缺乏明確的學習目標。</p>
+        </section>
+
+        <section class="features">
+            <a href="2ndpage.html" class="feature-card-link">
+                <div class="feature-card">
+                    <h3 class="lang-switch" data-zh="🔍 智能匹配問卷" data-en="🔍 Smart Matching">🔍 智能匹配問卷</h3>
+                    <p class="lang-switch" data-zh="輸入興趣與高中成績，精準推薦適合的大學與專業，找出最契合你的發展方向。" data-en="Input your interests and high school grades to get precise recommendations for suitable universities and majors, finding the best path for your development.">輸入興趣與高中成績，精準推薦適合的大學與專業，找出最契合你的發展方向。</p>
+                </div>
+            </a>
+            <a href="4thpage.html" class="feature-card-link">
+                <div class="feature-card">
+                    <h3 class="lang-switch" data-zh="🏛️ 全球大學資訊庫" data-en="🏛️ Global Database">🏛️ 全球大學資訊庫</h3>
+                    <p class="lang-switch" data-zh="一站式獲取各國名校排名、學院簡介及具體錄取分數線，資訊透明不再有落差。" data-en="A one-stop platform to get rankings, college introductions, and specific admission cut-offs of top global schools. Transparent information with no gaps.">一站式獲取各國名校排名、學院簡介及具體錄取分數線，資訊透明不再有落差。</p>
+                </div>
+            </a>
+            <a href="3rdpage.html" class="feature-card-link">
+                <div class="feature-card">
+                    <h3 class="lang-switch" data-zh="📈 差距分析與里程碑" data-en="📈 Gap Analysis">📈 差距分析與里程碑</h3>
+                    <p class="lang-switch" data-zh="視覺化比對目前成績與夢想大學的門檻差距，並生成專屬備戰清單，步步為營。" data-en="Visualize the gap between your current grades and your dream university's requirements, and generate an exclusive prep checklist to achieve your goals step by step.">視覺化比對目前成績與夢想大學的門檻差距，並生成專屬備戰清單，步步為營。</p>
+                </div>
+            </a>
+        </section>
+
+        <section class="timeline-section">
+            <h2 class="lang-switch" data-zh="如何使用 UniNav？" data-en="How to use UniNav?">如何使用 UniNav？</h2>
+            <div class="timeline">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h4 class="lang-switch" data-zh="填寫問卷" data-en="Fill Questionnaire">填寫問卷</h4>
+                    <p class="lang-switch" data-zh="輸入個人興趣與當前學術成績。" data-en="Enter your personal interests and current academic performance.">輸入個人興趣與當前學術成績。</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h4 class="lang-switch" data-zh="探索名校" data-en="Explore Schools">探索名校</h4>
+                    <p class="lang-switch" data-zh="在資訊庫中篩選並選定你的夢想大學。" data-en="Filter and select your dream university from the database.">在資訊庫中篩選並選定你的夢想大學。</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h4 class="lang-switch" data-zh="追蹤進度" data-en="Track Progress">追蹤進度</h4>
+                    <p class="lang-switch" data-zh="查看差距分析圖表，跟隨專屬 Check-list 逐步達標。" data-en="View the gap analysis chart and follow your exclusive Check-list to reach your goals.">查看差距分析圖表，跟隨專屬 Check-list 逐步達標。</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p class="lang-switch" data-zh="Made by 第 14 組（黃文軒、黃宇軒、黃一朴） &copy; 2026 UniNav." data-en="Made by Group 14 (Wong Man Hin, Wong U Hin, Wong I Pok) &copy; 2026 UniNav.">Made by 第 14 組（黃文軒、黃宇軒、黃一朴） &copy; 2026 UniNav.</p>
+    </footer>
+
+    <script>
+        // === 淺色/深色模式切換 ===
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const rootElement = document.documentElement;
+        
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            rootElement.setAttribute('data-theme', 'dark');
+            themeToggleBtn.textContent = '☀️';
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = rootElement.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                rootElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                themeToggleBtn.textContent = '🌙';
+            } else {
+                rootElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                themeToggleBtn.textContent = '☀️';
+            }
+        });
+
+        // === 漢堡選單 ===
+        const hamburgerBtn = document.getElementById('hamburger');
+        const navLinks = document.getElementById('nav-links');
+
+        hamburgerBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // === 語言切換 (中文 / 英文) ===
+        const langToggleBtn = document.getElementById('lang-toggle');
+        const langElements = document.querySelectorAll('.lang-switch');
+        
+        // 檢查是否有儲存的語言設定，預設為中文
+        let currentLang = localStorage.getItem('lang') || 'zh';
+
+        function updateLanguage(lang) {
+            langElements.forEach(el => {
+                // 使用 innerHTML 來確保 &copy; 符號正常顯示
+                el.innerHTML = el.getAttribute(`data-${lang}`);
+            });
+            // 更新按鈕文字
+            langToggleBtn.textContent = lang === 'zh' ? 'EN' : '中';
+            // 更新網頁語言屬性
+            document.documentElement.lang = lang === 'zh' ? 'zh-HK' : 'en';
+        }
+
+        // 綁定點擊事件
+        langToggleBtn.addEventListener('click', () => {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            localStorage.setItem('lang', currentLang); // 記住選擇
+            updateLanguage(currentLang);
+        });
+
+        // 初始化頁面語言
+        updateLanguage(currentLang);
+    </script>
+</body>
+</html>

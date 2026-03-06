@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全球名校庫 - UniNav 升學導航</title>
+    <style>
+        /* =========================================
+           色彩變量與全域設定
+           ========================================= */
+        :root {
+            --bg-color: #F8FAFC;
+            --text-main: #0F172A;
+            --text-muted: #475569;
+            --primary-color: #3B82F6;
+            --primary-hover: #1D4ED8;
+            --card-bg: #FFFFFF;
+            --card-shadow: rgba(0, 0, 0, 0.05);
+            --nav-bg: rgba(248, 250, 252, 0.9);
+            --border-color: #E2E8F0;
+            --task-bg: #F1F5F9;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0F172A;
+            --text-main: #F8FAFC;
+            --text-muted: #CBD5E1;
+            --primary-color: #3B82F6;
+            --primary-hover: #60A5FA;
+            --card-bg: #1E293B;
+            --card-shadow: rgba(0, 0, 0, 0.2);
+            --nav-bg: rgba(15, 23, 42, 0.9);
+            --border-color: #334155;
+            --task-bg: #0F172A;
+        }
+
+        html { scroll-behavior: smooth; }
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; overflow-x: hidden; }
+        a { text-decoration: none; color: inherit; }
+
+        /* =========================================
+           導航欄
+           ========================================= */
+        nav { position: fixed; top: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 5%; background-color: var(--nav-bg); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, var(--primary-color), var(--primary-hover)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-links { display: flex; align-items: center; gap: 1rem; }
+        .theme-toggle, .lang-toggle { background: var(--card-bg); border: none; cursor: pointer; color: var(--text-main); display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; box-shadow: 0 2px 5px var(--card-shadow); }
+        .theme-toggle { font-size: 1.2rem; }
+        .lang-toggle { font-size: 1rem; font-weight: bold; }
+
+        /* =========================================
+           主要內容區域
+           ========================================= */
+        main { padding: 100px 5% 5rem; max-width: 1400px; margin: 0 auto; }
+        
+        .page-header { text-align: center; margin-bottom: 2.5rem; }
+        .page-header h1 { font-size: 2.5rem; margin-bottom: 1rem; color: var(--text-main); }
+        .page-header p { color: var(--text-muted); font-size: 1.1rem; max-width: 800px; margin: 0 auto; }
+
+        /* =========================================
+           篩選器 Filter Console
+           ========================================= */
+        .filter-container { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 3rem; padding-bottom: 1rem; }
+        .filter-btn { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.6rem 1.5rem; border-radius: 50px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 5px var(--card-shadow); }
+        .filter-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+        .filter-btn.active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
+
+        /* =========================================
+           名校資訊卡片牆 (Grid)
+           ========================================= */
+        .uni-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+        
+        .db-card { background-color: var(--card-bg); border-radius: 16px; box-shadow: 0 10px 30px var(--card-shadow); border: 1px solid var(--border-color); padding: 1.8rem; display: flex; flex-direction: column; transition: transform 0.3s, box-shadow 0.3s; animation: fadeIn 0.4s ease forwards; }
+        .db-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px var(--card-shadow); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 卡片頭部 */
+        .card-header { margin-bottom: 1.2rem; }
+        .uni-name { font-size: 1.25rem; font-weight: 700; color: var(--primary-color); margin-bottom: 0.5rem; line-height: 1.3; }
+        
+        /* 標籤 */
+        .tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; }
+        .tag { padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: bold; border: 1px solid var(--border-color); }
+        .tag-region { background: var(--task-bg); color: var(--text-main); }
+        .tag.reach { color: #EF4444; border-color: #FECACA; background-color: #FEF2F2; }
+        .tag.target { color: #F59E0B; border-color: #FDE68A; background-color: #FFFBEB; }
+        .tag.safety { color: #10B981; border-color: #A7F3D0; background-color: #ECFDF5; }
+        [data-theme="dark"] .tag.reach { background-color: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); }
+        [data-theme="dark"] .tag.target { background-color: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.2); }
+        [data-theme="dark"] .tag.safety { background-color: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); }
+
+        /* 門檻數據區 */
+        .req-box { background: var(--task-bg); padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border-color); flex-grow: 1; display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1.2rem; }
+        .req-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; border-bottom: 1px dashed var(--border-color); padding-bottom: 0.8rem; }
+        .req-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .req-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; white-space: nowrap; }
+        .req-value { font-size: 0.9rem; color: var(--text-main); font-weight: bold; text-align: right; word-break: break-word; }
+
+        /* 優勢專業 */
+        .majors-section { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; border-top: 2px solid var(--border-color); padding-top: 1rem; }
+        .majors-title { font-weight: bold; color: var(--text-main); margin-bottom: 0.3rem; display: block; }
+
+        footer { text-align: center; padding: 2rem 5%; background-color: var(--bg-color); border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem; margin-top: 3rem; }
+
+        @media (max-width: 768px) {
+            .filter-container { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; padding-bottom: 15px; scrollbar-width: none; }
+            .filter-container::-webkit-scrollbar { display: none; }
+            .filter-btn { white-space: nowrap; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo lang-switch" data-zh="UniNav 升學導航" data-en="UniNav Navigator">UniNav 升學導航</div>
+        <div class="nav-links">
+            <button class="lang-toggle" id="lang-toggle" aria-label="切換語言">EN</button>
+            <button class="theme-toggle" id="theme-toggle" aria-label="切換深淺色模式">🌙</button>
+        </div>
+    </nav>
+
+    <main>
+        <div class="page-header">
+            <h1 class="lang-switch" data-zh="全球名校資訊庫" data-en="Global University Database">全球名校資訊庫</h1>
+            <p class="lang-switch" data-zh="一站式查閱美本、英港澳及內地保送的具體錄取分數線與標化要求，打破升學資訊不對稱。" data-en="A one-stop platform to check specific admission cut-offs and standardized test requirements for top global schools. Break the information asymmetry.">一站式查閱美本、英港澳及內地保送的具體錄取分數線與標化要求，打破升學資訊不對稱。</p>
+        </div>
+
+        <div class="filter-container" id="filter-btns">
+            <button class="filter-btn active lang-switch" data-filter="all" data-zh="🌐 全部 (50)" data-en="🌐 All (50)">🌐 全部 (50)</button>
+            <button class="filter-btn lang-switch" data-filter="us" data-zh="🇺🇸 美國 (20)" data-en="🇺🇸 US (20)">🇺🇸 美國 (20)</button>
+            <button class="filter-btn lang-switch" data-filter="cn" data-zh="🇨🇳 內地 (15)" data-en="🇨🇳 Mainland (15)">🇨🇳 內地 (15)</button>
+            <button class="filter-btn lang-switch" data-filter="uk" data-zh="🇬🇧 英國 (7)" data-en="🇬🇧 UK (7)">🇬🇧 英國 (7)</button>
+            <button class="filter-btn lang-switch" data-filter="hk" data-zh="🇭🇰 香港 (5)" data-en="🇭🇰 HK (5)">🇭🇰 香港 (5)</button>
+            <button class="filter-btn lang-switch" data-filter="mo" data-zh="🇲🇴 澳門 (3)" data-en="🇲🇴 Macau (3)">🇲🇴 澳門 (3)</button>
+        </div>
+
+        <div class="uni-grid" id="uni-grid">
+            </div>
+    </main>
+
+    <footer>
+        <p class="lang-switch" data-zh="Made by 第 14 組（黃文軒、黃宇軒、黃一朴） &copy; 2026 UniNav." data-en="Made by Group 14 (Wong Man Hin, Wong U Hin, Wong I Pok) &copy; 2026 UniNav.">Made by 第 14 組（黃文軒、黃宇軒、黃一朴） &copy; 2026 UniNav.</p>
+    </footer>
+
+    <script>
+        // === 淺色/深色模式切換 ===
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const rootElement = document.documentElement;
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            rootElement.setAttribute('data-theme', 'dark');
+            themeToggleBtn.textContent = '☀️';
+        }
+        themeToggleBtn.addEventListener('click', () => {
+            if (rootElement.getAttribute('data-theme') === 'dark') {
+                rootElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                themeToggleBtn.textContent = '🌙';
+            } else {
+                rootElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                themeToggleBtn.textContent = '☀️';
+            }
+        });
+
+        // === 全球大學資料庫 (50所) ===
+        const uniData = [
+            // ================= 🇺🇸 美國 (20所) =================
+            { region: "us", regionTagZh: "🇺🇸 美國", regionTagEn: "🇺🇸 US", nameZh: "史丹佛大學 (Stanford)", nameEn: "Stanford University", diffClass: "reach", diffZh: "衝刺", diffEn: "Reach", gpa: "3.95+ (Top 1%)", ielts: "7.5 / TOEFL 115", testLabelZh: "標化要求", testLabelEn: "Tests", testZh: "SAT 1550+ / AP 6-8門5分", testEn: "SAT 1550+ / 6-8 APs (5)", majorsZh: "計算機科學、物理學、人工智慧", majorsEn: "Computer Science, Physics, AI" },
+            { region: "us", regionTagZh: "🇺🇸 美國", regionTagEn: "🇺🇸 US", nameZh: "麻省理工學院 (MIT)", nameEn: "MIT", diffClass: "reach", diffZh: "衝刺", diffEn: "Reach", gpa: "4.0 (Top 1%)", ielts: "7.5 / TOEFL 110", testLabelZh: "標化要求", testLabelEn: "Tests", testZh: "SAT 1550+ (數學必滿)", testEn: "SAT 1550+ (Math 800)", majorsZh: "數學、物理學、工程學", majorsEn: "Mathematics, Physics, Engineering" },
+            { region: "us", regionTagZh: "🇺🇸 美國", regionTagEn: "🇺🇸 US", nameZh: "加州理工學院 (Caltech)", nameEn: "Caltech", diffClass: "reach", diffZh: "衝刺", diffEn: "Reach", gpa: "4.0", ielts: "7.5 / TOEFL 110", testLabelZh: "標化要求", testLabelEn: "Tests", testZh: "SAT 1560+ / 強理科競賽", testEn: "SAT 1560+ / Strong STEM Contests", majorsZh: "物理學、天文學、基礎科學", majorsEn: "Physics, Astronomy, Basic Sciences" },
+            { region: "us", regionTagZh: "🇺🇸 美國", regionTagEn: "🇺🇸 US", nameZh: "哈佛大學 (Harvard)", nameEn: "Harvard University", diffClass: "reach", diffZh: "衝刺", diffEn: "Reach", gpa: "3.95+ (Top 1%)", ielts: "7.5", testLabelZh: "標化要求", testLabelEn: "Tests", testZh: "SAT 1550+ / 卓越領導力", testEn: "SAT 1550+ / Exceptional Leadership", majorsZh: "經濟學、政治學、生物科學", majorsEn: "Economics, Political Sci, Bio Sci" },
+            { region: "us", regionTagZh: "🇺🇸 美國", regionTagEn: "🇺🇸 US", nameZh: "普林斯頓大學 (Princeton)", nameEn: "Princeton University", diffClass: "reach", diffZh: "衝刺", diffEn: "Reach", gpa: "3.95+", ielts: "7.5", testLabelZh: "標化要求", testLabelEn: "Tests", testZh: "SAT 1540+", testEn: "SAT 1540+", majorsZh: "數學、物理學、公共政策", majorsEn: "Mathematics, Physics, Public Policy" },
+            { region: "us", regionTagZh: "🇺🇸 美國", regionTagEn: "🇺🇸 US", nameZh: "耶魯大學 (Yale)", nameEn: "Yale University", diffClass: "reach", diffZh: "衝刺", diffEn: "Reach", gpa: "3.95+", ielts: "7.5", testLabelZh: "標化要求", testLabelEn: "Tests", testZh: "SAT 1540+ / 極高寫作要求", testEn: "SAT 1540+ / High Writing Req.", majorsZh: "歷史、經濟學、法學預備", majorsEn: "History, Economics, Pre-Law" },
+            { region: "us", regionTagZh: "🇺🇸 美國", regionTagEn: "🇺🇸 US", nameZh: "哥倫比亞大學 (Columbia)", nameEn: "Columbia University", diffClass: "reach", diffZh: "衝刺", diffEn: "Reach", gpa: "3.9+", ielts: "7.5", testLabelZh: "標化要求", testLabelEn: "Tests", testZh: "SAT 1530+", testEn: "SAT 1530+", majorsZh: "金融工程、新聞學、經濟", majorsEn: "Financial Eng., Journalism, Econ" },
+            { region: "us", regionTagZh: "🇺🇸 美國", regionTagEn: "🇺🇸 US", nameZh: "賓夕法尼亞大學 (UPenn)", nameEn: "University of Pennsylvania", diffClass: "reach", diffZh: "衝刺", diffEn: "Reach", gpa: "3.9+", ielts: "7.5", testLabelZh: "標化要求", testLabelEn: "Tests", testZh: "SAT 1530+ / 沃頓需強商科履歷", testEn: "SAT 1530+ / Strong Biz Profile for Wharton", majorsZh: "商學(沃頓)、護理學、經濟", majorsEn: "Business (Wharton), Nursing, Econ" },
+            { region: "us", regionTagZh: "🇺🇸 美國", regionTagEn: "🇺🇸 US", nameZh: "布朗大學 (Brown)", nameEn: "Brown University", diffClass: "reach", diffZh: "衝刺", diffEn: "Reach", gpa: "3.9+", ielts: "7.5", testLabelZh: "標化要求", testLabelEn: "Tests", testZh: "SAT 1520+ / 開放課程精神", testEn: "SAT 1520+ / Open Curriculum fit", majorsZh: "計算機科學、應用數學、文學", majorsEn: "CS, Applied Math, Literature" },
+            { region: "us", regionTagZh: "🇺🇸 美國", regionTagEn: "🇺🇸 US", nameZh: "康乃爾大學 (Cornell)", nameEn: "Cornell University", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "3.85+", ielts: "7.5", testLabelZh: "標化要求", testLabelEn: "Tests", testZh: "SAT 1500+ / 工程與農工特強", testEn: "SAT 1500+ / Strong in Eng. & Ag.", majorsZh: "工程物理、計算機、建築", majorsEn: "Engineering Physics, CS, Architecture" },
+            { region: "us", regionTagZh: "🇺🇸 美國", regionTagEn: "🇺🇸 US", nameZh: "芝加哥大學 (UChicago)", nameEn: "University of Chicago", diffClass: "reach", diffZh: "衝刺", diffEn: "Reach", gpa: "3.95+", ielts: "7.5", testLabelZh: "標化要求", testLabelEn: "Tests", testZh: "SAT 1540+ / 深度學術文書", testEn: "SAT 1540+ / Deep Academic Essays", majorsZh: "經濟學、數學、物理學", majorsEn: "Economics, Math, Physics" },
+            { region: "us", regionTagZh: "🇺🇸 美國", regionTagEn: "🇺🇸 US", nameZh: "杜克大學 (Duke)", nameEn: "Duke University", diffClass: "reach", diffZh: "衝刺", diffEn: "Reach", gpa: "3.9+", ielts: "7.5", testLabelZh: "標化要求", testLabelEn: "Tests", testZh: "SAT 1530+", testEn: "SAT 1530+", majorsZh: "公共政策、計算機、生物醫學", majorsEn: "Public Policy, CS, Biomedical Eng." },
+            { region: "us", regionTagZh: "🇺🇸 美國", regionTagEn: "🇺🇸 US", nameZh: "西北大學 (Northwestern)", nameEn: "Northwestern University", diffClass: "reach", diffZh: "衝刺", diffEn: "Reach", gpa: "3.9+", ielts: "7.5", testLabelZh: "標化要求", testLabelEn: "Tests", testZh: "SAT 1520+", testEn: "SAT 1520+", majorsZh: "新聞傳播、材料科學、經濟", majorsEn: "Journalism, Materials Sci, Econ" },
+            { region: "us", regionTagZh: "🇺🇸 美國", regionTagEn: "🇺🇸 US", nameZh: "約翰霍普金斯大學 (JHU)", nameEn: "Johns Hopkins University", diffClass: "reach", diffZh: "衝刺", diffEn: "Reach", gpa: "3.9+", ielts: "7.5", testLabelZh: "標化要求", testLabelEn: "Tests", testZh: "SAT 1530+ / 生醫背景加分", testEn: "SAT 1530+ / Pre-Med background", majorsZh: "生物醫學工程、公共衛生", majorsEn: "Biomedical Eng, Public Health" },
+            { region: "us", regionTagZh: "🇺🇸 美國", regionTagEn: "🇺🇸 US", nameZh: "加州大學柏克萊分校 (UCB)", nameEn: "UC Berkeley", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "3.85+ (Top 5%)", ielts: "7.0", testLabelZh: "標化要求", testLabelEn: "Tests", testZh: "Test-Blind / 重視AP與活動", testEn: "Test-Blind / Focus on AP & ECs", majorsZh: "計算機 (EECS)、工程、化學", majorsEn: "CS (EECS), Engineering, Chemistry" },
+            { region: "us", regionTagZh: "🇺🇸 美國", regionTagEn: "🇺🇸 US", nameZh: "加州大學洛杉磯分校 (UCLA)", nameEn: "UCLA", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "3.85+ (Top 5%)", ielts: "7.0", testLabelZh: "標化要求", testLabelEn: "Tests", testZh: "Test-Blind / 錄取率極低", testEn: "Test-Blind / Very competitive", majorsZh: "應用數學、心理學、電影", majorsEn: "Applied Math, Psychology, Film" },
+            { region: "us", regionTagZh: "🇺🇸 美國", regionTagEn: "🇺🇸 US", nameZh: "卡內基梅隆大學 (CMU)", nameEn: "Carnegie Mellon University", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "3.85+", ielts: "7.5", testLabelZh: "標化要求", testLabelEn: "Tests", testZh: "SCS學院 SAT需1550+", testEn: "SCS requires SAT 1550+", majorsZh: "計算機科學、人工智慧、量化金融", majorsEn: "CS, AI, Quant Finance" },
+            { region: "us", regionTagZh: "🇺🇸 美國", regionTagEn: "🇺🇸 US", nameZh: "紐約大學 (NYU)", nameEn: "New York University", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "3.8+", ielts: "7.5", testLabelZh: "標化要求", testLabelEn: "Tests", testZh: "Test-Flexible (可交AP替代)", testEn: "Test-Flexible (AP accepted)", majorsZh: "商科(Stern)、應用數學(Courant)", majorsEn: "Business (Stern), Applied Math (Courant)" },
+            { region: "us", regionTagZh: "🇺🇸 美國", regionTagEn: "🇺🇸 US", nameZh: "伊利諾大學香檳分校 (UIUC)", nameEn: "UIUC", diffClass: "safety", diffZh: "保底", diffEn: "Safety", gpa: "3.7+", ielts: "7.0", testLabelZh: "標化要求", testLabelEn: "Tests", testZh: "CS/工程類 SAT 1500+", testEn: "CS/Eng requires SAT 1500+", majorsZh: "計算機科學、物理學、工程", majorsEn: "Computer Science, Physics, Eng" },
+            { region: "us", regionTagZh: "🇺🇸 美國", regionTagEn: "🇺🇸 US", nameZh: "加州大學聖地牙哥分校 (UCSD)", nameEn: "UCSD", diffClass: "safety", diffZh: "保底", diffEn: "Safety", gpa: "3.7+", ielts: "7.0", testLabelZh: "標化要求", testLabelEn: "Tests", testZh: "Test-Blind", testEn: "Test-Blind", majorsZh: "數據科學、生物學、認知科學", majorsEn: "Data Science, Biology, Cognitive Sci" },
+
+            // ================= 🇨🇳 內地保送 (15所) =================
+            { region: "cn", regionTagZh: "🇨🇳 內地", regionTagEn: "🇨🇳 Mainland", nameZh: "清華大學 (Tsinghua)", nameEn: "Tsinghua University", diffClass: "reach", diffZh: "衝刺", diffEn: "Reach", gpa: "校內 Top 1%", ielts: "免豁", testLabelZh: "保送要求", testLabelEn: "Early Admin", testZh: "保送生面試 + 國家級競賽獎項", testEn: "Interview + National Contests", majorsZh: "計算機(姚班)、物理系、自動化", majorsEn: "CS (Yao Class), Physics, Automation" },
+            { region: "cn", regionTagZh: "🇨🇳 內地", regionTagEn: "🇨🇳 Mainland", nameZh: "北京大學 (PKU)", nameEn: "Peking University", diffClass: "reach", diffZh: "衝刺", diffEn: "Reach", gpa: "校內 Top 1%", ielts: "免豁", testLabelZh: "保送要求", testLabelEn: "Early Admin", testZh: "保送生面試 + 卓越學術潛力", testEn: "Interview + Excellent Academic Potential", majorsZh: "數學(北大數院)、元培學院、物理", majorsEn: "Math, Yuanpei College, Physics" },
+            { region: "cn", regionTagZh: "🇨🇳 內地", regionTagEn: "🇨🇳 Mainland", nameZh: "復旦大學 (Fudan)", nameEn: "Fudan University", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "校內 Top 5%", ielts: "免豁", testLabelZh: "保送要求", testLabelEn: "Early Admin", testZh: "保送面試成績優異", testEn: "High Interview Score", majorsZh: "經濟學、數學、微電子", majorsEn: "Economics, Math, Microelectronics" },
+            { region: "cn", regionTagZh: "🇨🇳 內地", regionTagEn: "🇨🇳 Mainland", nameZh: "上海交通大學 (SJTU)", nameEn: "Shanghai Jiao Tong University", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "校內 Top 5%", ielts: "免豁", testLabelZh: "保送要求", testLabelEn: "Early Admin", testZh: "強理科背景與面試表現", testEn: "Strong STEM background & Interview", majorsZh: "船舶工程、計算機、臨床醫學", majorsEn: "Naval Arch, CS, Clinical Medicine" },
+            { region: "cn", regionTagZh: "🇨🇳 內地", regionTagEn: "🇨🇳 Mainland", nameZh: "浙江大學 (ZJU)", nameEn: "Zhejiang University", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "校內 Top 5-10%", ielts: "免豁", testLabelZh: "保送要求", testLabelEn: "Early Admin", testZh: "保送考核", testEn: "Early Admission Assessment", majorsZh: "計算機科學、光學工程、軟件", majorsEn: "CS, Optical Engineering, Software" },
+            { region: "cn", regionTagZh: "🇨🇳 內地", regionTagEn: "🇨🇳 Mainland", nameZh: "南京大學 (NJU)", nameEn: "Nanjing University", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "校內 Top 10%", ielts: "免豁", testLabelZh: "保送要求", testLabelEn: "Early Admin", testZh: "保送考核", testEn: "Early Admission Assessment", majorsZh: "物理學、天文學、人工智能", majorsEn: "Physics, Astronomy, AI" },
+            { region: "cn", regionTagZh: "🇨🇳 內地", regionTagEn: "🇨🇳 Mainland", nameZh: "中國科學技術大學 (USTC)", nameEn: "USTC", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "校內 Top 5%", ielts: "免豁", testLabelZh: "保送要求", testLabelEn: "Early Admin", testZh: "極高理科天賦要求", testEn: "Extreme STEM aptitude required", majorsZh: "物理學、量子信息、數學", majorsEn: "Physics, Quantum Info, Math" },
+            { region: "cn", regionTagZh: "🇨🇳 內地", regionTagEn: "🇨🇳 Mainland", nameZh: "中國人民大學 (RUC)", nameEn: "Renmin University", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "校內 Top 10%", ielts: "免豁", testLabelZh: "保送要求", testLabelEn: "Early Admin", testZh: "偏好文商科特長生", testEn: "Prefers Humanities/Biz excellence", majorsZh: "法學、經濟學、統計學", majorsEn: "Law, Economics, Statistics" },
+            { region: "cn", regionTagZh: "🇨🇳 內地", regionTagEn: "🇨🇳 Mainland", nameZh: "中山大學 (SYSU)", nameEn: "Sun Yat-sen University", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "校內 Top 15%", ielts: "免豁", testLabelZh: "保送要求", testLabelEn: "Early Admin", testZh: "廣東區具地緣優勢，綜合面試", testEn: "Comprehensive Interview", majorsZh: "臨床醫學、工商管理、數學", majorsEn: "Clinical Med, Business Admin, Math" },
+            { region: "cn", regionTagZh: "🇨🇳 內地", regionTagEn: "🇨🇳 Mainland", nameZh: "武漢大學 (WHU)", nameEn: "Wuhan University", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "校內 Top 15%", ielts: "免豁", testLabelZh: "保送要求", testLabelEn: "Early Admin", testZh: "保送考核", testEn: "Early Admission Assessment", majorsZh: "測繪工程、法學、生物學", majorsEn: "Surveying/Mapping, Law, Biology" },
+            { region: "cn", regionTagZh: "🇨🇳 內地", regionTagEn: "🇨🇳 Mainland", nameZh: "哈爾濱工業大學 (HIT)", nameEn: "Harbin Institute of Technology", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "校內 Top 15%", ielts: "免豁", testLabelZh: "保送要求", testLabelEn: "Early Admin", testZh: "偏好硬核工程學科申請者", testEn: "Prefers hardcore engineering applicants", majorsZh: "航天工程、機器人、機械", majorsEn: "Aerospace, Robotics, Mechanical" },
+            { region: "cn", regionTagZh: "🇨🇳 內地", regionTagEn: "🇨🇳 Mainland", nameZh: "廈門大學 (XMU)", nameEn: "Xiamen University", diffClass: "safety", diffZh: "保底", diffEn: "Safety", gpa: "校內 Top 20%", ielts: "免豁", testLabelZh: "保送要求", testLabelEn: "Early Admin", testZh: "面試合格", testEn: "Interview Pass", majorsZh: "會計學、化學、海洋科學", majorsEn: "Accounting, Chemistry, Marine Sci" },
+            { region: "cn", regionTagZh: "🇨🇳 內地", regionTagEn: "🇨🇳 Mainland", nameZh: "同濟大學 (Tongji)", nameEn: "Tongji University", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "校內 Top 10-15%", ielts: "免豁", testLabelZh: "保送要求", testLabelEn: "Early Admin", testZh: "建築/土木方向需作品集", testEn: "Portfolio for Arch/Civil Eng", majorsZh: "建築學、土木工程、車輛工程", majorsEn: "Architecture, Civil Eng, Vehicle Eng" },
+            { region: "cn", regionTagZh: "🇨🇳 內地", regionTagEn: "🇨🇳 Mainland", nameZh: "北京師範大學 (BNU)", nameEn: "Beijing Normal University", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "校內 Top 15%", ielts: "免豁", testLabelZh: "保送要求", testLabelEn: "Early Admin", testZh: "保送考核", testEn: "Early Admission Assessment", majorsZh: "教育學、心理學、地理學", majorsEn: "Education, Psychology, Geography" },
+            { region: "cn", regionTagZh: "🇨🇳 內地", regionTagEn: "🇨🇳 Mainland", nameZh: "南開大學 (Nankai)", nameEn: "Nankai University", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "校內 Top 15%", ielts: "免豁", testLabelZh: "保送要求", testLabelEn: "Early Admin", testZh: "保送面試", testEn: "Early Admission Interview", majorsZh: "數學、化學、經濟史", majorsEn: "Math, Chemistry, Economic History" },
+
+            // ================= 🇬🇧 英國 (7所) =================
+            { region: "uk", regionTagZh: "🇬🇧 英國", regionTagEn: "🇬🇧 UK", nameZh: "劍橋大學 (Cambridge)", nameEn: "University of Cambridge", diffClass: "reach", diffZh: "衝刺", diffEn: "Reach", gpa: "IAL 體系為主", ielts: "7.5 (單項不低於7.0)", testLabelZh: "A-Level / IAL", testLabelEn: "A-Level/IAL", testZh: "A*A*A* + 入學筆試(STEP)及面試", testEn: "A*A*A* + STEP & Interview", majorsZh: "自然科學 (物理)、數學、工程", majorsEn: "Natural Sciences, Math, Engineering" },
+            { region: "uk", regionTagZh: "🇬🇧 英國", regionTagEn: "🇬🇧 UK", nameZh: "牛津大學 (Oxford)", nameEn: "University of Oxford", diffClass: "reach", diffZh: "衝刺", diffEn: "Reach", gpa: "IAL 體系為主", ielts: "7.5 (單項不低於7.0)", testLabelZh: "A-Level / IAL", testLabelEn: "A-Level/IAL", testZh: "A*A*A + 筆試(PAT/MAT)及面試", testEn: "A*A*A + PAT/MAT & Interview", majorsZh: "物理與哲學、數學、 PPE", majorsEn: "Physics & Phil, Math, PPE" },
+            { region: "uk", regionTagZh: "🇬🇧 英國", regionTagEn: "🇬🇧 UK", nameZh: "倫敦帝國學院 (ICL)", nameEn: "Imperial College London", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "IAL 體系為主", ielts: "7.0 (單項不低於6.5)", testLabelZh: "A-Level / IAL", testLabelEn: "A-Level/IAL", testZh: "A*A*A (物理與高數必備)", testEn: "A*A*A (Math & Further Math req)", majorsZh: "物理系、計算機科學、電機工程", majorsEn: "Physics, CS, EEE" },
+            { region: "uk", regionTagZh: "🇬🇧 英國", regionTagEn: "🇬🇧 UK", nameZh: "倫敦大學學院 (UCL)", nameEn: "UCL", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "IAL 體系為主", ielts: "7.0 - 7.5", testLabelZh: "A-Level / IAL", testLabelEn: "A-Level/IAL", testZh: "A*AA (依科系浮動)", testEn: "A*AA (Varies by major)", majorsZh: "經濟學、計算機、教育學", majorsEn: "Economics, CS, Education" },
+            { region: "uk", regionTagZh: "🇬🇧 英國", regionTagEn: "🇬🇧 UK", nameZh: "倫敦政經學院 (LSE)", nameEn: "LSE", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "IAL 體系為主", ielts: "7.0", testLabelZh: "A-Level / IAL", testLabelEn: "A-Level/IAL", testZh: "A*AA (極度看重數學成績)", testEn: "A*AA (Heavy focus on Math)", majorsZh: "經濟學、金融學、會計", majorsEn: "Economics, Finance, Accounting" },
+            { region: "uk", regionTagZh: "🇬🇧 英國", regionTagEn: "🇬🇧 UK", nameZh: "倫敦國王學院 (KCL)", nameEn: "King's College London", diffClass: "safety", diffZh: "保底", diffEn: "Safety", gpa: "IAL 體系為主", ielts: "7.0", testLabelZh: "A-Level / IAL", testLabelEn: "A-Level/IAL", testZh: "A*AA 或 AAA", testEn: "A*AA or AAA", majorsZh: "醫學、牙醫、法律", majorsEn: "Medicine, Dentistry, Law" },
+            { region: "uk", regionTagZh: "🇬🇧 英國", regionTagEn: "🇬🇧 UK", nameZh: "愛丁堡大學 (Edinburgh)", nameEn: "University of Edinburgh", diffClass: "safety", diffZh: "保底", diffEn: "Safety", gpa: "IAL 體系為主", ielts: "6.5 - 7.0", testLabelZh: "A-Level / IAL", testLabelEn: "A-Level/IAL", testZh: "AAA - ABB", testEn: "AAA - ABB", majorsZh: "人工智慧、獸醫學、資訊學", majorsEn: "AI, Veterinary Med, Informatics" },
+
+            // ================= 🇭🇰 香港 (5所) =================
+            { region: "hk", regionTagZh: "🇭🇰 香港", regionTagEn: "🇭🇰 HK", nameZh: "香港大學 (HKU)", nameEn: "University of Hong Kong", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "3.7+ / DSE", ielts: "6.5 - 7.0", testLabelZh: "入學要求", testLabelEn: "Req.", testZh: "DSE Best 5 28+ / IAL A*A*A", testEn: "DSE 28+ / IAL A*A*A", majorsZh: "醫學、法學、計量金融", majorsEn: "Medicine, Law, Quant Finance" },
+            { region: "hk", regionTagZh: "🇭🇰 香港", regionTagEn: "🇭🇰 HK", nameZh: "香港科技大學 (HKUST)", nameEn: "HKUST", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "3.6+ / DSE", ielts: "6.5", testLabelZh: "入學要求", testLabelEn: "Req.", testZh: "DSE Best 5 25+ / IAL A*AA", testEn: "DSE 25+ / IAL A*AA", majorsZh: "物理學、計算機、商學院", majorsEn: "Physics, CS, Business" },
+            { region: "hk", regionTagZh: "🇭🇰 香港", regionTagEn: "🇭🇰 HK", nameZh: "香港中文大學 (CUHK)", nameEn: "CUHK", diffClass: "target", diffZh: "目標", diffEn: "Target", gpa: "3.6+ / DSE", ielts: "6.5", testLabelZh: "入學要求", testLabelEn: "Req.", testZh: "DSE Best 5 25+ / IAL A*AA", testEn: "DSE 25+ / IAL A*AA", majorsZh: "數據科學、人工智能、護理", majorsEn: "Data Science, AI, Nursing" },
+            { region: "hk", regionTagZh: "🇭🇰 香港", regionTagEn: "🇭🇰 HK", nameZh: "香港理工大學 (PolyU)", nameEn: "PolyU", diffClass: "safety", diffZh: "保底", diffEn: "Safety", gpa: "3.3+ / DSE", ielts: "6.0", testLabelZh: "入學要求", testLabelEn: "Req.", testZh: "DSE Best 5 20+ / IAL ABB", testEn: "DSE 20+ / IAL ABB", majorsZh: "物理治療、應用物理、酒店管理", majorsEn: "Physiotherapy, Applied Physics, Hospitality" },
+            { region: "hk", regionTagZh: "🇭🇰 香港", regionTagEn: "🇭🇰 HK", nameZh: "香港城市大學 (CityU)", nameEn: "CityU", diffClass: "safety", diffZh: "保底", diffEn: "Safety", gpa: "3.2+ / DSE", ielts: "6.0", testLabelZh: "入學要求", testLabelEn: "Req.", testZh: "DSE Best 5 19+ / IAL BBB", testEn: "DSE 19+ / IAL BBB", majorsZh: "獸醫學、創意媒體、數據科學", majorsEn: "Veterinary, Creative Media, Data Sci" },
+
+            // ================= 🇲🇴 澳門 (3所) =================
+            { region: "mo", regionTagZh: "🇲🇴 澳門", regionTagEn: "🇲🇴 Macau", nameZh: "澳門大學 (UM)", nameEn: "University of Macau", diffClass: "safety", diffZh: "保底", diffEn: "Safety", gpa: "3.0+", ielts: "6.0", testLabelZh: "入學方式", testLabelEn: "Admission", testZh: "校長推薦保送 / 澳門四校聯考", testEn: "Principal Recommendation / Joint Exam", majorsZh: "微電子、中藥質量、工商管理", majorsEn: "Microelectronics, Chinese Med, BBA" },
+            { region: "mo", regionTagZh: "🇲🇴 澳門", regionTagEn: "🇲🇴 Macau", nameZh: "澳門科技大學 (MUST)", nameEn: "Macau Univ. of Sci and Tech", diffClass: "safety", diffZh: "保底", diffEn: "Safety", gpa: "2.8+", ielts: "無強制", testLabelZh: "入學方式", testLabelEn: "Admission", testZh: "保送生 / 聯考成績", testEn: "Early Admin / Joint Exam", majorsZh: "計算機科學、中醫學、太空科學", majorsEn: "CS, Traditional Chinese Med, Space Sci" },
+            { region: "mo", regionTagZh: "🇲🇴 澳門", regionTagEn: "🇲🇴 Macau", nameZh: "澳門理工大學 (MPU)", nameEn: "Macao Polytechnic University", diffClass: "safety", diffZh: "保底", diffEn: "Safety", gpa: "2.8+", ielts: "無強制", testLabelZh: "入學方式", testLabelEn: "Admission", testZh: "保送生 / 聯考成績", testEn: "Early Admin / Joint Exam", majorsZh: "中葡翻譯、電腦學、護理學", majorsEn: "Sino-Lusophone Trade, Computing, Nursing" }
+        ];
+
+        // === 渲染卡片邏輯 ===
+        const uniGrid = document.getElementById('uni-grid');
+
+        function renderCards(filterRegion) {
+            uniGrid.innerHTML = '';
+            
+            const filteredData = filterRegion === 'all' 
+                ? uniData 
+                : uniData.filter(uni => uni.region === filterRegion);
+
+            filteredData.forEach(uni => {
+                const cardHTML = `
+                    <div class="db-card">
+                        <div class="card-header">
+                            <h3 class="uni-name lang-switch" data-zh="${uni.nameZh}" data-en="${uni.nameEn}">${currentLang === 'zh' ? uni.nameZh : uni.nameEn}</h3>
+                            <div class="tags">
+                                <span class="tag tag-region lang-switch" data-zh="${uni.regionTagZh}" data-en="${uni.regionTagEn}">${currentLang === 'zh' ? uni.regionTagZh : uni.regionTagEn}</span>
+                                <span class="tag ${uni.diffClass} lang-switch" data-zh="${uni.diffZh}" data-en="${uni.diffEn}">${currentLang === 'zh' ? uni.diffZh : uni.diffEn}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="req-box">
+                            <div class="req-row">
+                                <span class="req-label lang-switch" data-zh="GPA 要求" data-en="GPA Req.">GPA 要求</span>
+                                <span class="req-value">${uni.gpa}</span>
+                            </div>
+                            <div class="req-row">
+                                <span class="req-label lang-switch" data-zh="語言門檻" data-en="Language">語言門檻</span>
+                                <span class="req-value">${uni.ielts}</span>
+                            </div>
+                            <div class="req-row">
+                                <span class="req-label lang-switch" data-zh="${uni.testLabelZh}" data-en="${uni.testLabelEn}">${currentLang === 'zh' ? uni.testLabelZh : uni.testLabelEn}</span>
+                                <span class="req-value lang-switch" data-zh="${uni.testZh}" data-en="${uni.testEn}">${currentLang === 'zh' ? uni.testZh : uni.testEn}</span>
+                            </div>
+                        </div>
+
+                        <div class="majors-section">
+                            <span class="majors-title lang-switch" data-zh="💡 優勢學科" data-en="💡 Top Majors">💡 優勢學科</span>
+                            <span class="lang-switch" data-zh="${uni.majorsZh}" data-en="${uni.majorsEn}">${currentLang === 'zh' ? uni.majorsZh : uni.majorsEn}</span>
+                        </div>
+                    </div>
+                `;
+                uniGrid.insertAdjacentHTML('beforeend', cardHTML);
+            });
+            
+            updateLanguage(currentLang);
+        }
+
+        // === 語言切換邏輯 ===
+        const langToggleBtn = document.getElementById('lang-toggle');
+        let currentLang = localStorage.getItem('lang') || 'zh';
+
+        function updateLanguage(lang) {
+            document.querySelectorAll('.lang-switch').forEach(el => {
+                const customText = el.getAttribute(`data-${lang}`);
+                if (customText) {
+                    el.innerHTML = customText;
+                }
+            });
+            langToggleBtn.textContent = lang === 'zh' ? 'EN' : '中';
+            document.documentElement.lang = lang === 'zh' ? 'zh-HK' : 'en';
+        }
+
+        langToggleBtn.addEventListener('click', () => {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            localStorage.setItem('lang', currentLang);
+            updateLanguage(currentLang);
+        });
+
+        // === 篩選按鈕事件綁定 ===
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                const filterRegion = e.target.getAttribute('data-filter');
+                renderCards(filterRegion);
+            });
+        });
+
+        // 初始載入：渲染全部卡片
+        renderCards('all');
+
+    </script>
+</body>
+</html>

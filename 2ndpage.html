@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>升學計劃書 - UniNav 升學導航</title>
+    <style>
+        /* =========================================
+           色彩變量與全域設定
+           ========================================= */
+        :root {
+            --bg-color: #F8FAFC;
+            --text-main: #0F172A;
+            --text-muted: #475569;
+            --primary-color: #3B82F6;
+            --primary-hover: #1D4ED8;
+            --card-bg: #FFFFFF;
+            --card-shadow: rgba(0, 0, 0, 0.05);
+            --nav-bg: rgba(248, 250, 252, 0.9);
+            --border-color: #E2E8F0;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --reach-color: #EF4444;
+            --target-color: #F59E0B;
+            --safety-color: #10B981;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0F172A;
+            --text-main: #F8FAFC;
+            --text-muted: #CBD5E1;
+            --primary-color: #3B82F6;
+            --primary-hover: #60A5FA;
+            --card-bg: #1E293B;
+            --card-shadow: rgba(0, 0, 0, 0.2);
+            --nav-bg: rgba(15, 23, 42, 0.9);
+            --border-color: #334155;
+            --success-color: #34D399;
+            --warning-color: #FBBF24;
+            --reach-color: #FCA5A5;
+            --target-color: #FCD34D;
+            --safety-color: #6EE7B7;
+        }
+
+        html { scroll-behavior: smooth; }
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.4s, color 0.4s, border-color 0.4s, box-shadow 0.4s; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; overflow-x: hidden; }
+        a { text-decoration: none; color: inherit; }
+
+        /* =========================================
+           導航欄
+           ========================================= */
+        nav { position: fixed; top: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 5%; background-color: var(--nav-bg); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, var(--primary-color), var(--primary-hover)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-links { display: flex; align-items: center; gap: 2rem; }
+        .nav-links a:hover { color: var(--primary-color); }
+        .theme-toggle, .lang-toggle { background: var(--card-bg); border: none; cursor: pointer; color: var(--text-main); display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; box-shadow: 0 2px 5px var(--card-shadow); }
+        .theme-toggle { font-size: 1.2rem; }
+        .lang-toggle { font-size: 1rem; font-weight: bold; }
+        .hamburger { display: none; background: none; border: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; }
+
+        /* =========================================
+           主要內容區域
+           ========================================= */
+        main { padding: 100px 5% 5rem; max-width: 1400px; margin: 0 auto; }
+        
+        .page-header { text-align: center; margin-bottom: 3rem; }
+        .page-header h1 { font-size: 2.5rem; margin-bottom: 1rem; color: var(--text-main); }
+        .page-header p { color: var(--text-muted); font-size: 1.1rem; }
+
+        .dashboard-grid { display: grid; grid-template-columns: 350px 1fr; gap: 2rem; }
+
+        /* 左側表單 (滾動設定) */
+        .profile-card { background-color: var(--card-bg); padding: 2rem; border-radius: 16px; box-shadow: 0 10px 30px var(--card-shadow); border: 1px solid var(--border-color); height: fit-content; position: sticky; top: 90px; max-height: calc(100vh - 120px); overflow-y: auto; }
+        .profile-card::-webkit-scrollbar { width: 6px; }
+        .profile-card::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 4px; }
+        .profile-card h3 { margin-bottom: 1.5rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-main); font-family: inherit; }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .submit-btn { width: 100%; padding: 1rem; margin-top: 1rem; background: linear-gradient(135deg, var(--primary-color), var(--primary-hover)); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
+
+        /* 右側區域：差距分析與進度條 */
+        .analysis-section { display: flex; flex-direction: column; gap: 2rem; }
+        .gap-analysis { background-color: var(--card-bg); padding: 2rem; border-radius: 16px; box-shadow: 0 10px 30px var(--card-shadow); border: 1px solid var(--border-color); border-left: 4px solid var(--warning-color); transition: border-left-color 0.4s; }
+        .gap-analysis.success-mode { border-left: 4px solid var(--success-color); }
+        
+        .gap-analysis h3 { margin-bottom: 1rem; }
+        .progress-container { background-color: var(--border-color); border-radius: 10px; height: 20px; width: 100%; margin: 1rem 0; overflow: hidden; }
+        .progress-bar { background-color: var(--primary-color); height: 100%; width: 0%; border-radius: 10px; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; color: white; font-size: 0.8rem; font-weight: bold; transition: width 0.8s ease-in-out, background-color 0.4s; white-space: nowrap; }
+        .progress-bar.achieved { background-color: var(--success-color); }
+        
+        /* 里程碑 Check-list */
+        .checklist { list-style: none; margin-top: 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .checklist li { background: var(--bg-color); padding: 1rem; border-radius: 8px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--border-color); transition: border-left-color 0.3s; font-size: 0.95rem; }
+        .checklist li.completed { border-left: 4px solid var(--success-color); }
+        .checklist li.pending { border-left: 4px solid var(--warning-color); }
+        
+        /* 推薦大學卡片 */
+        .uni-recommendations { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .region-title { grid-column: 1 / -1; margin-top: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border-color); font-size: 1.4rem; color: var(--text-main); }
+        .uni-card { background-color: var(--card-bg); padding: 1.5rem; border-radius: 16px; box-shadow: 0 5px 15px var(--card-shadow); border: 1px solid var(--border-color); display: flex; flex-direction: column; justify-content: space-between; }
+        .uni-card h4 { color: var(--primary-color); margin-bottom: 0.5rem; font-size: 1.15rem; }
+        .uni-card p { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; flex-grow: 1; }
+        .uni-card .tags { display: flex; gap: 8px; flex-wrap: wrap; }
+        .uni-card .tag { display: inline-block; padding: 0.3rem 0.6rem; background-color: var(--bg-color); border-radius: 4px; font-size: 0.75rem; border: 1px solid var(--border-color); font-weight: bold; transition: all 0.3s ease; }
+        
+        /* 動態標籤顏色 */
+        .tag.reach { color: #EF4444; border-color: #FECACA; background-color: #FEF2F2; }
+        .tag.target { color: #F59E0B; border-color: #FDE68A; background-color: #FFFBEB; }
+        .tag.safety { color: #10B981; border-color: #A7F3D0; background-color: #ECFDF5; }
+
+        [data-theme="dark"] .tag.reach { background-color: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); color: var(--reach-color); }
+        [data-theme="dark"] .tag.target { background-color: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.2); color: var(--target-color); }
+        [data-theme="dark"] .tag.safety { background-color: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); color: var(--safety-color); }
+
+        footer { text-align: center; padding: 2rem 5%; background-color: var(--bg-color); border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem; margin-top: 3rem; }
+
+        @media (max-width: 992px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .profile-card { position: static; max-height: none; }
+            .checklist { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .nav-links { display: none; flex-direction: column; position: absolute; top: 70px; left: 0; width: 100%; background-color: var(--card-bg); padding: 1rem 0; box-shadow: 0 10px 20px var(--card-shadow); border-bottom: 1px solid var(--border-color); }
+            .nav-links.active { display: flex; }
+            .hamburger { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo lang-switch" data-zh="UniNav 升學導航" data-en="UniNav Navigator">UniNav 升學導航</div>
+        <button class="hamburger" id="hamburger">☰</button>
+        <div class="nav-links" id="nav-links">
+            <a href="index.html" class="lang-switch" data-zh="首頁" data-en="Home">首頁</a>
+            <button class="lang-toggle" id="lang-toggle" aria-label="切換語言">EN</button>
+            <button class="theme-toggle" id="theme-toggle" aria-label="切換深淺色模式">🌙</button>
+        </div>
+    </nav>
+
+    <main>
+        <div class="page-header">
+            <h1 class="lang-switch" data-zh="專屬升學計劃書" data-en="Your Exclusive Study Plan">專屬升學計劃書</h1>
+            <p class="lang-switch" data-zh="精準量化你的學術表現，涵蓋標化成績、競賽經歷，為你定位全球頂尖學府。" data-en="Quantify your academic performance, including standardized tests and competitions, to target top global universities.">精準量化你的學術表現，涵蓋標化成績、競賽經歷，為你定位全球頂尖學府。</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <aside class="profile-card">
+                <h3 class="lang-switch" data-zh="📝 全面評估問卷" data-en="📝 Comprehensive Profile">📝 全面評估問卷</h3>
+                <form id="tracker-form" onsubmit="updateDashboard(event)">
+                    <div class="form-group">
+                        <label class="lang-switch" data-zh="目標專業領域" data-en="Target Major Field">目標專業領域</label>
+                        <select id="major-input">
+                            <option class="lang-switch" data-zh="物理與數學" data-en="Physics & Mathematics" selected>物理與數學</option>
+                            <option class="lang-switch" data-zh="計算機科學與人工智慧" data-en="Computer Science & AI">計算機科學與人工智慧</option>
+                            <option class="lang-switch" data-zh="數據科學與統計學" data-en="Data Science & Statistics">數據科學與統計學</option>
+                            <option class="lang-switch" data-zh="經濟學與量化金融" data-en="Economics & Quantitative Finance">經濟學與量化金融</option>
+                            <option class="lang-switch" data-zh="商業管理與金融" data-en="Business Management & Finance">商業管理與金融</option>
+                            <option class="lang-switch" data-zh="電機與電子工程" data-en="Electrical & Electronic Engineering">電機與電子工程</option>
+                            <option class="lang-switch" data-zh="機械與航空航天工程" data-en="Mechanical & Aerospace Engineering">機械與航空航天工程</option>
+                            <option class="lang-switch" data-zh="生物科學與生物醫學" data-en="Biological Sciences & Biomedicine">生物科學與生物醫學</option>
+                            <option class="lang-switch" data-zh="醫學與臨床科學" data-en="Medicine & Clinical Sciences">醫學與臨床科學</option>
+                            <option class="lang-switch" data-zh="心理學與神經科學" data-en="Psychology & Neuroscience">心理學與神經科學</option>
+                            <option class="lang-switch" data-zh="法律與法學" data-en="Law & Jurisprudence">法律與法學</option>
+                            <option class="lang-switch" data-zh="傳播學與媒體研究" data-en="Communication & Media Studies">傳播學與媒體研究</option>
+                            <option class="lang-switch" data-zh="政治學與國際關係" data-en="Political Science & International Relations">政治學與國際關係</option>
+                            <option class="lang-switch" data-zh="藝術與設計" data-en="Art & Design">藝術與設計</option>
+                            <option class="lang-switch" data-zh="建築與城市規劃" data-en="Architecture & Urban Planning">建築與城市規劃</option>
+                            <option class="lang-switch" data-zh="教育學" data-en="Education">教育學</option>
+                            <option class="lang-switch" data-zh="社會學與人類學" data-en="Sociology & Anthropology">社會學與人類學</option>
+                            <option class="lang-switch" data-zh="語言學與文學" data-en="Linguistics & Literature">語言學與文學</option>
+                            <option class="lang-switch" data-zh="化學與材料科學" data-en="Chemistry & Materials Science">化學與材料科學</option>
+                            <option class="lang-switch" data-zh="環境科學與可持續發展" data-en="Environmental Science & Sustainability">環境科學與可持續發展</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="lang-switch" data-zh="校內 GPA (滿分4.0)" data-en="School GPA (out of 4.0)">校內 GPA (滿分4.0)</label>
+                        <input type="number" id="gpa-input" step="0.1" max="4.0" min="0" value="3.8" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="lang-switch" data-zh="雅思 IELTS" data-en="IELTS Score">雅思 IELTS</label>
+                        <input type="number" id="ielts-input" step="0.5" max="9.0" min="0" value="7.0" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="lang-switch" data-zh="SAT 總分" data-en="SAT Total Score">SAT 總分</label>
+                        <input type="number" id="sat-input" step="10" max="1600" min="400" value="1520">
+                    </div>
+                    <div class="form-group">
+                        <label class="lang-switch" data-zh="A-Level / IAL 預估" data-en="A-Level / IAL Predicted">A-Level / IAL 預估</label>
+                        <input type="text" id="alevel-input" value="A*A*A (Math, FM, Physics)">
+                    </div>
+                    <div class="form-group">
+                        <label class="lang-switch" data-zh="AP 考試數量與成績" data-en="AP Exams & Scores">AP 考試數量與成績</label>
+                        <input type="text" id="ap-input" placeholder="例如: 3門5分" value="Physics C, Calc BC (5)">
+                    </div>
+                    <div class="form-group">
+                        <label class="lang-switch" data-zh="高含金量競賽與科研 (如 HiMCM, 丘成桐競賽)" data-en="Competitions & Research (e.g. HiMCM, Yau Contest)">高含金量競賽與科研 (如 HiMCM, 丘成桐競賽)</label>
+                        <textarea id="comp-input">HiMCM (H獎)
+IMMC 參賽
+丘成桐中學科學獎 (準備中)
+交通最佳化演算法專案</textarea>
+                    </div>
+                    <button type="submit" class="submit-btn lang-switch" data-zh="更新分析數據" data-en="Update Analysis Data">更新分析數據</button>
+                </form>
+            </aside>
+
+            <section class="analysis-section">
+                <div id="analysis-box" class="gap-analysis">
+                    <h3 class="lang-switch" data-zh="📈 綜合競爭力與里程碑" data-en="📈 Competitiveness & Milestones">📈 綜合競爭力與里程碑</h3>
+                    <p class="lang-switch" data-zh="美英頂尖名校基準 | GPA: 3.8+ | IELTS: 7.0+ | SAT: 1500+ | A-Level: A*AA+" data-en="Top US/UK Benchmark | GPA: 3.8+ | IELTS: 7.0+ | SAT: 1500+ | A-Level: A*AA+">美英頂尖名校基準 | GPA: 3.8+ | IELTS: 7.0+ | SAT: 1500+ | A-Level: A*AA+</p>
+                    
+                    <div class="progress-container">
+                        <div id="progress-bar" class="progress-bar"></div>
+                    </div>
+                    
+                    <ul class="checklist">
+                        <li id="cl-gpa-container" class="pending">
+                            <span id="cl-gpa-text" class="lang-switch" data-zh="⏳ 維持高 GPA (目標 3.8+)" data-en="⏳ Maintain high GPA (Target 3.8+)">⏳ 維持高 GPA (目標 3.8+)</span>
+                        </li>
+                        <li id="cl-ielts-container" class="pending">
+                            <span id="cl-ielts-text" class="lang-switch" data-zh="⏳ 雅思語言達標 (目標 7.0)" data-en="⏳ IELTS Target (Target: 7.0)">⏳ 雅思語言達標 (目標 7.0)</span>
+                        </li>
+                        <li id="cl-sat-container" class="pending">
+                            <span id="cl-sat-text" class="lang-switch" data-zh="⏳ 衝刺 SAT (目標 1500+)" data-en="⏳ Push SAT score (Target: 1500+)">⏳ 衝刺 SAT (目標 1500+)</span>
+                        </li>
+                        <li id="cl-alevel-container" class="pending">
+                            <span id="cl-alevel-text" class="lang-switch" data-zh="⏳ IAL/A-Level 預估成績 (需含 A*)" data-en="⏳ IAL Predicted (Needs A*)">⏳ IAL/A-Level 預估成績 (需含 A*)</span>
+                        </li>
+                        <li id="cl-comp-container" class="pending">
+                            <span id="cl-comp-text" class="lang-switch" data-zh="⏳ 累積國際競賽/科研經歷" data-en="⏳ Build international competition profile">⏳ 累積國際競賽/科研經歷</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="lang-switch" style="margin-bottom: 0.5rem;" data-zh="🏛️ 推薦大學資訊庫 (依地區)" data-en="🏛️ Global Universities Database">🏛️ 推薦大學資訊庫 (依地區)</h3>
+                    
+                    <div class="uni-recommendations" id="uni-list">
+                        <h4 class="region-title lang-switch" data-zh="🇺🇸 美國頂尖學府" data-en="🇺🇸 Top US Universities">🇺🇸 美國頂尖學府</h4>
+                        
+                        <div class="uni-card" data-req="95">
+                            <h4 class="lang-switch" data-zh="史丹佛大學 (Stanford)" data-en="Stanford University">史丹佛大學 (Stanford)</h4>
+                            <p class="lang-switch" data-zh="物理、計算機科學與 AI" data-en="Physics, CS & AI">物理、計算機科學與 AI</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="95">
+                            <h4 class="lang-switch" data-zh="麻省理工學院 (MIT)" data-en="MIT">麻省理工學院 (MIT)</h4>
+                            <p class="lang-switch" data-zh="數學、物理學" data-en="Mathematics, Physics">數學、物理學</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="95">
+                            <h4 class="lang-switch" data-zh="加州理工學院 (Caltech)" data-en="Caltech">加州理工學院 (Caltech)</h4>
+                            <p class="lang-switch" data-zh="基礎科學與應用物理" data-en="Basic Science & Applied Physics">基礎科學與應用物理</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="95">
+                            <h4 class="lang-switch" data-zh="哈佛大學 (Harvard)" data-en="Harvard University">哈佛大學 (Harvard)</h4>
+                            <p class="lang-switch" data-zh="文理學院 (物理/經濟)" data-en="Arts & Sciences (Physics/Econ)">文理學院 (物理/經濟)</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="95">
+                            <h4 class="lang-switch" data-zh="普林斯頓大學 (Princeton)" data-en="Princeton University">普林斯頓大學 (Princeton)</h4>
+                            <p class="lang-switch" data-zh="數學與物理" data-en="Mathematics & Physics">數學與物理</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="85">
+                            <h4 class="lang-switch" data-zh="加州大學柏克萊分校 (UCB)" data-en="UC Berkeley">加州大學柏克萊分校 (UCB)</h4>
+                            <p class="lang-switch" data-zh="計算機科學 (EECS) / 物理" data-en="CS (EECS) / Physics">計算機科學 (EECS) / 物理</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="85">
+                            <h4 class="lang-switch" data-zh="加州大學洛杉磯分校 (UCLA)" data-en="UCLA">加州大學洛杉磯分校 (UCLA)</h4>
+                            <p class="lang-switch" data-zh="應用數學與物理" data-en="Applied Math & Physics">應用數學與物理</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="85">
+                            <h4 class="lang-switch" data-zh="卡內基梅隆大學 (CMU)" data-en="Carnegie Mellon University">卡內基梅隆大學 (CMU)</h4>
+                            <p class="lang-switch" data-zh="計算機科學與量化金融" data-en="Computer Science & Quant Finance">計算機科學與量化金融</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="85">
+                            <h4 class="lang-switch" data-zh="康乃爾大學 (Cornell)" data-en="Cornell University">康乃爾大學 (Cornell)</h4>
+                            <p class="lang-switch" data-zh="工程物理學" data-en="Engineering Physics">工程物理學</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="80">
+                            <h4 class="lang-switch" data-zh="紐約大學 (NYU)" data-en="New York University (NYU)">紐約大學 (NYU)</h4>
+                            <p class="lang-switch" data-zh="應用數學 (Courant學院)" data-en="Applied Math (Courant)">應用數學 (Courant學院)</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="75">
+                            <h4 class="lang-switch" data-zh="伊利諾大學香檳分校 (UIUC)" data-en="UIUC">伊利諾大學香檳分校 (UIUC)</h4>
+                            <p class="lang-switch" data-zh="計算機與物理學" data-en="Computer Science & Physics">計算機與物理學</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="75">
+                            <h4 class="lang-switch" data-zh="加州大學聖地牙哥分校 (UCSD)" data-en="UCSD">加州大學聖地牙哥分校 (UCSD)</h4>
+                            <p class="lang-switch" data-zh="數據科學、物理學" data-en="Data Science, Physics">數據科學、物理學</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+
+                        <h4 class="region-title lang-switch" data-zh="🇬🇧 英國頂尖學府" data-en="🇬🇧 Top UK Universities">🇬🇧 英國頂尖學府</h4>
+                        
+                        <div class="uni-card" data-req="95">
+                            <h4 class="lang-switch" data-zh="劍橋大學 (Cambridge)" data-en="University of Cambridge">劍橋大學 (Cambridge)</h4>
+                            <p class="lang-switch" data-zh="自然科學 (物理)" data-en="Natural Sciences (Physics)">自然科學 (物理)</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="95">
+                            <h4 class="lang-switch" data-zh="牛津大學 (Oxford)" data-en="University of Oxford">牛津大學 (Oxford)</h4>
+                            <p class="lang-switch" data-zh="物理與哲學" data-en="Physics & Philosophy">物理與哲學</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="85">
+                            <h4 class="lang-switch" data-zh="倫敦帝國學院 (ICL)" data-en="Imperial College London">倫敦帝國學院 (ICL)</h4>
+                            <p class="lang-switch" data-zh="物理系 (BSc/MSci)" data-en="Department of Physics">物理系 (BSc/MSci)</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="85">
+                            <h4 class="lang-switch" data-zh="倫敦大學學院 (UCL)" data-en="UCL">倫敦大學學院 (UCL)</h4>
+                            <p class="lang-switch" data-zh="統計、經濟與金融" data-en="Stats, Econ & Finance">統計、經濟與金融</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="85">
+                            <h4 class="lang-switch" data-zh="倫敦政經學院 (LSE)" data-en="LSE">倫敦政經學院 (LSE)</h4>
+                            <p class="lang-switch" data-zh="數學與經濟" data-en="Mathematics & Economics">數學與經濟</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="75">
+                            <h4 class="lang-switch" data-zh="愛丁堡大學 (Edinburgh)" data-en="University of Edinburgh">愛丁堡大學 (Edinburgh)</h4>
+                            <p class="lang-switch" data-zh="人工智慧與計算機科學" data-en="AI & Computer Science">人工智慧與計算機科學</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="75">
+                            <h4 class="lang-switch" data-zh="曼徹斯特大學 (Manchester)" data-en="University of Manchester">曼徹斯特大學 (Manchester)</h4>
+                            <p class="lang-switch" data-zh="物理與天文學" data-en="Physics & Astronomy">物理與天文學</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="75">
+                            <h4 class="lang-switch" data-zh="倫敦國王學院 (KCL)" data-en="King's College London">倫敦國王學院 (KCL)</h4>
+                            <p class="lang-switch" data-zh="數學與金融" data-en="Mathematics & Finance">數學與金融</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+
+                        <h4 class="region-title lang-switch" data-zh="🌏 亞洲頂尖學府" data-en="🌏 Top Asian Universities">🌏 亞洲頂尖學府</h4>
+                        
+                        <div class="uni-card" data-req="95">
+                            <h4 class="lang-switch" data-zh="清華大學 (Tsinghua)" data-en="Tsinghua University">清華大學 (Tsinghua)</h4>
+                            <p class="lang-switch" data-zh="姚班 / 物理系" data-en="Yao Class / Physics">姚班 / 物理系</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="95">
+                            <h4 class="lang-switch" data-zh="北京大學 (PKU)" data-en="Peking University">北京大學 (PKU)</h4>
+                            <p class="lang-switch" data-zh="元培學院 / 數學科學" data-en="Yuanpei / Mathematics">元培學院 / 數學科學</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="85">
+                            <h4 class="lang-switch" data-zh="新加坡國立大學 (NUS)" data-en="NUS">新加坡國立大學 (NUS)</h4>
+                            <p class="lang-switch" data-zh="數據科學與經濟" data-en="Data Science & Economics">數據科學與經濟</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="85">
+                            <h4 class="lang-switch" data-zh="南洋理工大學 (NTU)" data-en="NTU">南洋理工大學 (NTU)</h4>
+                            <p class="lang-switch" data-zh="物理與應用物理" data-en="Physics & Applied Physics">物理與應用物理</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="85">
+                            <h4 class="lang-switch" data-zh="東京大學 (UTokyo)" data-en="University of Tokyo">東京大學 (UTokyo)</h4>
+                            <p class="lang-switch" data-zh="理學部 (PEAK英文授課)" data-en="Faculty of Science (PEAK)">理學部 (PEAK英文授課)</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="85">
+                            <h4 class="lang-switch" data-zh="香港大學 (HKU)" data-en="University of Hong Kong">香港大學 (HKU)</h4>
+                            <p class="lang-switch" data-zh="理學院 / 量化金融" data-en="Faculty of Science / QFin">理學院 / 量化金融</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="80">
+                            <h4 class="lang-switch" data-zh="香港科技大學 (HKUST)" data-en="HKUST">香港科技大學 (HKUST)</h4>
+                            <p class="lang-switch" data-zh="理學院 (物理)" data-en="School of Science (Physics)">理學院 (物理)</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="75">
+                            <h4 class="lang-switch" data-zh="香港中文大學 (CUHK)" data-en="CUHK">香港中文大學 (CUHK)</h4>
+                            <p class="lang-switch" data-zh="物理系 / 數據科學" data-en="Physics / Data Science">物理系 / 數據科學</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="65">
+                            <h4 class="lang-switch" data-zh="香港理工大學 (PolyU)" data-en="PolyU">香港理工大學 (PolyU)</h4>
+                            <p class="lang-switch" data-zh="應用物理 / 計算機" data-en="Applied Physics / CS">應用物理 / 計算機</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                        <div class="uni-card" data-req="60">
+                            <h4 class="lang-switch" data-zh="澳門大學 (UM)" data-en="University of Macau">澳門大學 (UM)</h4>
+                            <p class="lang-switch" data-zh="科技學院" data-en="Faculty of Science & Technology">科技學院</p>
+                            <div class="tags"><span class="tag lang-switch"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <p class="lang-switch" data-zh="Made by 第 14 組（黃文軒、黃宇軒、黃一朴） &copy; 2026 UniNav." data-en="Made by Group 14 (Wong Man Hin, Wong U Hin, Wong I Pok) &copy; 2026 UniNav.">Made by 第 14 組（黃文軒、黃宇軒、黃一朴） &copy; 2026 UniNav.</p>
+    </footer>
+
+    <script>
+        // === 淺色/深色模式切換 ===
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const rootElement = document.documentElement;
+        
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            rootElement.setAttribute('data-theme', 'dark');
+            themeToggleBtn.textContent = '☀️';
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            if (rootElement.getAttribute('data-theme') === 'dark') {
+                rootElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                themeToggleBtn.textContent = '🌙';
+            } else {
+                rootElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                themeToggleBtn.textContent = '☀️';
+            }
+        });
+
+        // === 漢堡選單 ===
+        document.getElementById('hamburger').addEventListener('click', () => {
+            document.getElementById('nav-links').classList.toggle('active');
+        });
+
+        // === 語言切換邏輯 ===
+        const langToggleBtn = document.getElementById('lang-toggle');
+        let currentLang = localStorage.getItem('lang') || 'zh';
+
+        function updateLanguage(lang) {
+            document.querySelectorAll('.lang-switch').forEach(el => {
+                // 如果是標籤（Tag），而且有設定過自定義文本的話，就優先顯示自定義文本
+                const customText = el.getAttribute(`data-${lang}`);
+                if (customText) {
+                    el.innerHTML = customText;
+                }
+            });
+            langToggleBtn.textContent = lang === 'zh' ? 'EN' : '中';
+            document.documentElement.lang = lang === 'zh' ? 'zh-HK' : 'en';
+            
+            updateProgressBarText();
+        }
+
+        langToggleBtn.addEventListener('click', () => {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            localStorage.setItem('lang', currentLang);
+            updateLanguage(currentLang);
+        });
+
+        // === 動態更新面板邏輯 ===
+        const targetGpa = 3.8;
+        const targetIelts = 7.0;
+        const targetSat = 1500;
+
+        function updateProgressBarText() {
+            const pb = document.getElementById('progress-bar');
+            if(pb.style.width !== '0%') {
+                pb.innerHTML = currentLang === 'zh' ? `完成度評估` : `Completion Rate`;
+            }
+        }
+
+        function updateDashboard(event) {
+            event.preventDefault(); 
+            
+            // 取得使用者輸入
+            const currentGpa = parseFloat(document.getElementById('gpa-input').value) || 0;
+            const currentIelts = parseFloat(document.getElementById('ielts-input').value) || 0;
+            const currentSat = parseFloat(document.getElementById('sat-input').value) || 0;
+            const currentAlevel = document.getElementById('alevel-input').value.toUpperCase();
+            const currentComp = document.getElementById('comp-input').value.trim();
+            
+            // 1. 計算總體分數 Score (滿分100)
+            let score = 0;
+            if (currentGpa >= targetGpa) score += 20; else score += (currentGpa/targetGpa)*20;
+            if (currentIelts >= targetIelts) score += 20; else score += (currentIelts/targetIelts)*20;
+            if (currentSat >= targetSat) score += 20; else score += (currentSat/targetSat)*20;
+            if (currentAlevel.includes('A*')) score += 20; else if (currentAlevel.includes('A')) score += 10;
+            if (currentComp.length > 5) score += 20; // 簡單判斷有無填寫競賽
+
+            if (score > 100) score = 100;
+            
+            // 更新進度條 UI
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = score + '%';
+            if (score >= 90) {
+                progressBar.classList.add('achieved');
+            } else {
+                progressBar.classList.remove('achieved');
+            }
+            updateProgressBarText();
+
+            // 2. 更新 Checklist 狀態
+            // GPA
+            const clGpaContainer = document.getElementById('cl-gpa-container');
+            const clGpaText = document.getElementById('cl-gpa-text');
+            if (currentGpa >= targetGpa) {
+                clGpaContainer.className = 'completed';
+                clGpaText.setAttribute('data-zh', '✅ GPA 已達標 (>= 3.8)');
+                clGpaText.setAttribute('data-en', '✅ GPA Target Reached (>= 3.8)');
+            } else {
+                clGpaContainer.className = 'pending';
+                clGpaText.setAttribute('data-zh', '⏳ 維持高 GPA (目標 3.8+)');
+                clGpaText.setAttribute('data-en', '⏳ Maintain high GPA (Target 3.8+)');
+            }
+
+            // IELTS
+            const clIeltsContainer = document.getElementById('cl-ielts-container');
+            const clIeltsText = document.getElementById('cl-ielts-text');
+            if (currentIelts >= targetIelts) {
+                clIeltsContainer.className = 'completed';
+                clIeltsText.setAttribute('data-zh', '✅ 雅思成績已達標 (>= 7.0)');
+                clIeltsText.setAttribute('data-en', '✅ IELTS Target Reached (>= 7.0)');
+            } else {
+                clIeltsContainer.className = 'pending';
+                clIeltsText.setAttribute('data-zh', '⏳ 雅思成績需加強 (目標 7.0)');
+                clIeltsText.setAttribute('data-en', '⏳ Improve IELTS score (Target: 7.0)');
+            }
+
+            // SAT
+            const clSatContainer = document.getElementById('cl-sat-container');
+            const clSatText = document.getElementById('cl-sat-text');
+            if (currentSat >= targetSat) {
+                clSatContainer.className = 'completed';
+                clSatText.setAttribute('data-zh', '✅ SAT 已達標 (>= 1500)');
+                clSatText.setAttribute('data-en', '✅ SAT Target Reached (>= 1500)');
+            } else {
+                clSatContainer.className = 'pending';
+                clSatText.setAttribute('data-zh', '⏳ 衝刺 SAT (目標 1500+)');
+                clSatText.setAttribute('data-en', '⏳ Push SAT score (Target: 1500+)');
+            }
+
+            // A-Level / IAL
+            const clAlevelContainer = document.getElementById('cl-alevel-container');
+            const clAlevelText = document.getElementById('cl-alevel-text');
+            if (currentAlevel.includes('A*')) {
+                clAlevelContainer.className = 'completed';
+                clAlevelText.setAttribute('data-zh', '✅ IAL 預估具備競爭力');
+                clAlevelText.setAttribute('data-en', '✅ IAL Predicted is competitive');
+            } else {
+                clAlevelContainer.className = 'pending';
+                clAlevelText.setAttribute('data-zh', '⏳ 爭取 IAL/A-Level A* 成績');
+                clAlevelText.setAttribute('data-en', '⏳ Aim for A* in IAL/A-Level');
+            }
+
+            // Competitions
+            const clCompContainer = document.getElementById('cl-comp-container');
+            const clCompText = document.getElementById('cl-comp-text');
+            if (currentComp.length > 5) {
+                clCompContainer.className = 'completed';
+                clCompText.setAttribute('data-zh', '✅ 具備豐富科研與競賽經歷');
+                clCompText.setAttribute('data-en', '✅ Strong research & competition profile');
+            } else {
+                clCompContainer.className = 'pending';
+                clCompText.setAttribute('data-zh', '⏳ 累積國際競賽/科研經歷');
+                clCompText.setAttribute('data-en', '⏳ Build competition profile');
+            }
+
+            // 整體框線特效
+            const analysisBox = document.getElementById('analysis-box');
+            if (score >= 90) {
+                analysisBox.classList.add('success-mode');
+            } else {
+                analysisBox.classList.remove('success-mode');
+            }
+
+            // ==========================================
+            // 3. 動態更新大學錄取標籤 (核心邏輯)
+            // ==========================================
+            const uniCards = document.querySelectorAll('.uni-card');
+            
+            uniCards.forEach(card => {
+                // 取得該大學的預設錄取門檻分數 (data-req)
+                const reqScore = parseInt(card.getAttribute('data-req'));
+                const tag = card.querySelector('.tag');
+                
+                // 清除舊的顏色 class
+                tag.classList.remove('reach', 'target', 'safety');
+                
+                // 演算法：將使用者的分數與大學門檻對比
+                const difference = score - reqScore;
+                
+                if (difference >= 10) {
+                    // 遠超門檻 = 保底
+                    tag.classList.add('safety');
+                    tag.setAttribute('data-zh', '保底 (Safety)');
+                    tag.setAttribute('data-en', 'Safety');
+                } else if (difference >= -5) {
+                    // 在門檻邊緣或略微超過 = 目標
+                    tag.classList.add('target');
+                    tag.setAttribute('data-zh', '目標 (Target)');
+                    tag.setAttribute('data-en', 'Target');
+                } else {
+                    // 分數不足門檻 = 衝刺
+                    tag.classList.add('reach');
+                    tag.setAttribute('data-zh', '衝刺 (Reach)');
+                    tag.setAttribute('data-en', 'Reach');
+                }
+            });
+
+            // 確保文字語言即時刷新
+            updateLanguage(currentLang);
+        }
+
+        // 初始化
+        updateLanguage(currentLang);
+        setTimeout(() => {
+            document.getElementById('tracker-form').dispatchEvent(new Event('submit'));
+        }, 500);
+
+    </script>
+</body>
+</html>
