@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校園二手交換平臺 Ultra</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #e0e0e0;
+            --text-muted: #9e9e9e;
+            --primary: #bb86fc;
+            --secondary: #03dac6;
+            --danger: #cf6679;
+            --warning: #f2a600;
+            --highlight: #ffeb3b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+        body {
+            background: linear-gradient(135deg, #121212 0%, #1e1e24 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container { width: 100%; max-width: 650px; position: relative; }
+
+        h1 { text-align: center; margin-bottom: 20px; font-weight: 600; color: var(--primary); letter-spacing: 1px; }
+
+        /* Glassmorphism */
+        .glass-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Form Controls */
+        input[type="text"], textarea, select, button {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus, textarea:focus, select:focus { border-color: var(--primary); }
+        textarea { resize: vertical; min-height: 80px; }
+        select option { background: #1e1e24; color: var(--text-main); }
+
+        .btn-primary { background: var(--primary); color: #121212; font-weight: bold; cursor: pointer; border: none; }
+        .btn-primary:hover { opacity: 0.9; }
+
+        /* Record Item */
+        .record-item { position: relative; transition: all 0.3s; }
+        .record-item.done { opacity: 0.5; filter: grayscale(50%); }
+
+        .record-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .badge-cat { background: var(--secondary); color: #000; }
+        .status-active { background: rgba(3, 218, 198, 0.2); color: var(--secondary); }
+        .status-done { background: rgba(207, 102, 121, 0.2); color: var(--danger); }
+        .stats-text { font-size: 12px; color: var(--text-muted); margin-left: auto; margin-right: 10px; }
+
+        .record-body { margin-bottom: 15px; }
+        .content-box { font-size: 15px; line-height: 1.5; white-space: pre-wrap; margin-bottom: 10px; }
+        .expected-box { font-size: 13px; color: var(--warning); background: rgba(242, 166, 0, 0.1); padding: 8px; border-radius: 6px; border-left: 3px solid var(--warning); }
+
+        /* Comments Section */
+        .comments-section { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--glass-border); }
+        .comment-item { font-size: 13px; color: var(--text-muted); background: rgba(0,0,0,0.2); padding: 6px 10px; border-radius: 4px; margin-bottom: 6px; }
+
+        .record-footer { display: flex; justify-content: flex-start; align-items: center; font-size: 12px; border-top: 1px solid var(--glass-border); padding-top: 12px; flex-wrap: wrap; gap: 8px;}
+        
+        .btn-small { width: auto; padding: 6px 12px; margin-bottom: 0; font-size: 12px; border-radius: 6px; cursor: pointer; border: none; font-weight: 500;}
+        .btn-like { background: rgba(255, 255, 255, 0.1); color: var(--text-main); }
+        .btn-fun { background: rgba(3, 218, 198, 0.15); color: var(--secondary); border: 1px solid var(--secondary); }
+        .btn-bump { background: rgba(187, 134, 252, 0.15); color: var(--primary); border: 1px solid var(--primary); }
+        .btn-outline { background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); }
+        
+        /* Toast Notification */
+        #toast {
+            visibility: hidden; min-width: 250px; background-color: var(--primary); color: #000;
+            text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000;
+            left: 50%; bottom: 30px; transform: translateX(-50%); font-weight: bold;
+            box-shadow: 0px 4px 15px rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.5s, bottom 0.5s;
+        }
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>校園二手交換平臺 Ultra</h1>
+
+    <div class="glass-card">
+        <form id="exchangeForm">
+            <textarea id="contentInput" placeholder="描述你的物品狀況 (越詳細越好脫手)..." required></textarea>
+            <input type="text" id="expectedInput" placeholder="期望交換什麼？ (例如: 換幾杯珍奶，或直接出價)" required>
+            <div style="display: flex; gap: 10px;">
+                <select id="categoryInput">
+                    <option value="課本講義">課本講義</option>
+                    <option value="文具周邊">文具周邊</option>
+                    <option value="電子產品">電子產品</option>
+                    <option value="校園盲盒">🎁 校園盲盒</option>
+                    <option value="其他">其他</option>
+                </select>
+                <button type="submit" class="btn-primary">發布物品</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="list-container"></div>
+</div>
+
+<div id="toast">AI 估價結果</div>
+
+<script>
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxomjSeiO-bf_UiC72Gx4ihNMjrI_9pXjauj1EgqQHfuwezCkdtG_Ha83w6TtWT-4niCg/exec";
+    const STORAGE_KEY = 'records';
+    let currentRecords = [];
+
+    // --- 核心資料操作 Functions ---
+
+    function loadData() {
+        const data = localStorage.getItem(STORAGE_KEY);
+        return data ? JSON.parse(data) : [];
+    }
+
+    function createRecord(formData) {
+        const now = new Date();
+        return {
+            id: Date.now().toString(),
+            timestamp: now.getTime(),
+            createdAt: now.toLocaleString('zh-TW', { hour12: false, month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+            status: 'active',
+            content: formData.content,
+            expected: formData.expected,
+            category: formData.category,
+            likes: 0,
+            views: Math.floor(Math.random() * 50) + 1, // 初始隨機瀏覽量
+            comments: [] // 留言陣列
+        };
+    }
+
+    function saveData(recordsArray) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(recordsArray));
+        currentRecords = recordsArray;
+    }
+
+    // 新增後端連線器 (POST)
+    async function syncToSheet(payload) {
+        try {
+            const response = await fetch(APPS_SCRIPT_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain" },
+                body: JSON.stringify(payload)
+            });
+            return await response.json();
+        } catch (error) {
+            console.error("同步遠端 Google Sheet 失敗:", error);
+        }
+    }
+
+    // 新增遠端拉取器 (GET)
+    async function fetchRecordsFromSheet() {
+        const response = await fetch(APPS_SCRIPT_URL);
+        const data = await response.json();
+        if (data.ok) {
+            return data.records.map(normalizeRecord);
+        } else {
+            throw new Error(data.error || "未知後端錯誤");
+        }
+    }
+
+    // 新增欄位標準化轉換器
+    function normalizeRecord(record) {
+        return {
+            id: String(record.ID),
+            timestamp: Number(record.Timestamp),
+            createdAt: record.CreatedAt,
+            status: record.Status,
+            content: record.Content,
+            expected: record.Expected,
+            category: record.Category,
+            likes: Number(record.Likes || 0),
+            views: Number(record.Views || 0),
+            comments: typeof record.Comments === 'string' ? JSON.parse(record.Comments) : (record.Comments || [])
+        };
+    }
+
+    function updateRecord(id, changes) {
+        const newData = currentRecords.map(r => r.id === id ? { ...r, ...changes } : r);
+        saveData(newData);
+        
+        // 觸發同步更新雲端
+        syncToSheet({ action: "update", id, changes });
+    }
+
+    // --- UI 與渲染 Functions ---
+
+    function renderList(recordsToShow) {
+        const container = document.getElementById('list-container');
+        container.innerHTML = '';
+
+        if (recordsToShow.length === 0) {
+            container.innerHTML = '<div class="glass-card" style="text-align:center; color: #9e9e9e;">目前沒有物品，快來發布第一個吧！</div>';
+            return;
+        }
+
+        recordsToShow.forEach(record => {
+            const isDone = record.status === 'done';
+            const card = document.createElement('div');
+            card.className = `glass-card record-item ${isDone ? 'done' : ''}`;
+            
+            // 渲染留言區塊
+            let commentsHTML = '';
+            if (record.comments && record.comments.length > 0) {
+                commentsHTML = `<div class="comments-section">
+                    ${record.comments.map(c => `<div class="comment-item">💬 ${escapeHTML(c)}</div>`).join('')}
+                </div>`;
+            }
+            
+            card.innerHTML = `
+                <div class="record-header">
+                    <span class="badge badge-cat">${record.category}</span>
+                    <span class="stats-text">👁️ ${record.views} 瀏覽</span>
+                    <span class="badge ${isDone ? 'status-done' : 'status-active'}">
+                        ${isDone ? '已完成' : '待交易'}
+                    </span>
+                </div>
+                <div class="record-body">
+                    <div class="content-box">${escapeHTML(record.content)}</div>
+                    <div class="expected-box">🔁 期望：${escapeHTML(record.expected)}</div>
+                    ${commentsHTML}
+                </div>
+                <div class="record-footer">
+                    <button class="btn-small btn-like" onclick="handleLike('${record.id}')">
+                        🔥 想換 +${record.likes}
+                    </button>
+                    ${!isDone ? `
+                        <button class="btn-small btn-fun" onclick="handleBargain('${record.id}')">🔪 屠龍刀砍價</button>
+                        <button class="btn-small btn-fun" onclick="handleAppraise()">🔮 AI玄學估價</button>
+                        <button class="btn-small btn-bump" onclick="handleBump('${record.id}')">✨ 擦亮置頂</button>
+                    ` : ''}
+                    <button class="btn-small btn-outline" onclick="handleToggleStatus('${record.id}')" style="margin-left: auto;">
+                        ${isDone ? '🔄 重新上架' : '✅ 標記完成'}
+                    </button>
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted); text-align: right; margin-top: 8px;">發布於 ${record.createdAt}</div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function escapeHTML(str) {
+        return str.replace(/[&<>'"]/g, tag => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+        }[tag]));
+    }
+
+    function processAndRender() {
+        let processed = currentRecords.map(r => {
+            if(Math.random() > 0.7 && r.status === 'active') r.views += Math.floor(Math.random() * 3);
+            return r;
+        });
+        
+        processed.sort((a, b) => b.timestamp - a.timestamp);
+        renderList(processed);
+    }
+
+    function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.innerText = message;
+        toast.className = "show";
+        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+    }
+
+    // --- 互動功能事件 ---
+
+    // 表單送出
+    document.getElementById('exchangeForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const contentInput = document.getElementById('contentInput');
+        const expectedInput = document.getElementById('expectedInput');
+        const categoryInput = document.getElementById('categoryInput');
+
+        if (!contentInput.value.trim() || !expectedInput.value.trim()) return;
+
+        const newRecord = createRecord({
+            content: contentInput.value.trim(),
+            expected: expectedInput.value.trim(),
+            category: categoryInput.value
+        });
+
+        const newData = [newRecord, ...currentRecords];
+        saveData(newData);
+        
+        contentInput.value = '';
+        expectedInput.value = '';
+        processAndRender(); 
+
+        // 同步寫入 Sheet 後端
+        await syncToSheet({ action: "create", record: newRecord });
+    });
+
+    // 點讚
+    window.handleLike = function(id) {
+        const record = currentRecords.find(r => r.id === id);
+        if (record) {
+            updateRecord(id, { likes: record.likes + 1, views: record.views + 2 });
+            processAndRender();
+        }
+    };
+
+    // 切換狀態
+    window.handleToggleStatus = function(id) {
+        const record = currentRecords.find(r => r.id === id);
+        if (record) {
+            updateRecord(id, { status: record.status === 'active' ? 'done' : 'active' });
+            processAndRender();
+        }
+    };
+
+    // 擦亮 (置頂)
+    window.handleBump = function(id) {
+        const record = currentRecords.find(r => r.id === id);
+        if (record) {
+            updateRecord(id, { timestamp: Date.now(), views: record.views + 5 });
+            showToast("✨ 擦亮成功！已將物品推至首頁頂端");
+            processAndRender();
+        }
+    };
+
+    // AI 玄學估價 (純前端娛樂功能)
+    window.handleAppraise = function() {
+        const appraisals = [
+            "AI 量化模型估算：約值 0.00015 BTC 🚀",
+            "這東西有點玄乎，建議當傳家寶傳下去！",
+            "深度學習網路分析結果：價值連城，千萬別賤賣！",
+            "估價結果：大概能換學校食堂三個便當 🍱",
+            "波動率過高，無法估計，這是一筆高風險交易 📉",
+            "模型崩潰了... 這東西的價值超越了金錢 💎"
+        ];
+        const randomMsg = appraisals[Math.floor(Math.random() * appraisals.length)];
+        showToast("🔮 " + randomMsg);
+    };
+
+    // 屠龍刀隨機砍價
+    window.handleBargain = function(id) {
+        const record = currentRecords.find(r => r.id === id);
+        if (record) {
+            const jokes = [
+                "學生黨，能用半個三明治跟你換嗎？🍞",
+                "拿一張湖人隊 LBJ 復刻球星卡跟你換行不？🏀",
+                "剛考完 P1 腦子燒壞了，大佬能發發慈悲免費送我嗎？😭",
+                "這個能用來跑演算法模型嗎？不能的話 50 塊收！",
+                "我看這東西與我有緣，不如交個朋友，直接送我吧？🤝",
+                "家裡貓咪很喜歡，能打個骨折價嗎？🐈"
+            ];
+            const randomJoke = jokes[Math.floor(Math.random() * jokes.length)];
+            const newComments = [...(record.comments || []), randomJoke];
+            updateRecord(id, { comments: newComments, views: record.views + 3 });
+            processAndRender();
+        }
+    };
+
+    // --- 初始化 ---
+    async function init() {
+        try {
+            // 優先取得雲端資料
+            currentRecords = await fetchRecordsFromSheet();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(currentRecords));
+        } catch (error) {
+            console.warn("無法連接 Google Sheet，啟用離線 localStorage 方案:", error);
+            currentRecords = loadData();
+        }
+        processAndRender();
+    }
+
+    init();
+
+</script>
+</body>
+</html>
